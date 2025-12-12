@@ -71,39 +71,39 @@ const Dashboard = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  const getQuestions = (band, category) => {
-    axios.get(`http://localhost:8000/bands/band${band}/category/${category}`, {
+  const getQuestions = (band) => {
+    axios.get(`http://localhost:8000/bands/band${band}/random-questions`, {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json'
       }
     }).then((response) => {
       console.log(response.data);
-      // const data = response.data.questions;
+      const data = response.data.questions;
 
       // Map raw category text to competency IDs
-      // const categoryToCompetency = {
-      //   "Self evaluation Communication": "Communication",
-      //   "Self evaluation Adaptability & Learning Agility": "Adaptability & Learning Agility",
-      //   "Self-evaluation Teamwork & Collaboration": "Teamwork & Collaboration",
-      //   "Self evaluation Accountability & Ownership": "Accountability & Ownership",
-      //   "Self evaluation Problem Solving & Critical Thinking": "Problem Solving & Critical Thinking",
-      // };
+      const categoryToCompetency = {
+        "Self evaluation Communication": "Communication",
+        "Self evaluation Adaptability & Learning Agility": "Adaptability & Learning Agility",
+        "Self-evaluation Teamwork & Collaboration": "Teamwork & Collaboration",
+        "Self evaluation Accountability & Ownership": "Accountability & Ownership",
+        "Self evaluation Problem Solving & Critical Thinking": "Problem Solving & Critical Thinking",
+      };
 
-      // const grouped = data.reduce((acc, item) => {
-      //   // Convert category name → correct competency id
-      //   const compId = categoryToCompetency[item.category];
+      const grouped = data.reduce((acc, item) => {
+        // Convert category name → correct competency id
+        const compId = categoryToCompetency[item.category];
 
-      //   if (!compId) return acc; // skip if no match
+        if (!compId) return acc; // skip if no match
 
-      //   if (!acc[compId]) acc[compId] = [];
-      //   acc[compId].push(item.question);
+        if (!acc[compId]) acc[compId] = [];
+        acc[compId].push(item.question);
 
-      //   return acc;
-      // }, {});
+        return acc;
+      }, {});
 
-      // console.log(grouped);
-      // setQuestionsData(grouped);
+      console.log(grouped);
+      setQuestionsData(grouped);
 
 
     }).catch((error) => {
@@ -119,6 +119,7 @@ const Dashboard = () => {
       }
     }).then((response) => {
       console.log(response.data);
+      getQuestions(response.data.Agreed_Band);
       setUserName(response.data.Employee_Name);
       setCurrentBand(response.data.Agreed_Band);
     }).catch((error) => {
