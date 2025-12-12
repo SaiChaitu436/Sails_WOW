@@ -1,0 +1,65 @@
+.congratulations-modal .modal-content {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.congratulations-modal-body {
+  padding: 40px;
+}
+
+.celebration-icon {
+  font-size: 64px !important;
+  color: #ffd700;
+  margin-bottom: 20px;
+}
+
+.congratulations-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.congratulations-message {
+  font-size: 16px;
+  color: var(--text-medium);
+  margin-bottom: 32px;
+  line-height: 1.6;
+  font-family: 'Poppins', sans-serif;
+}
+
+.congratulations-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.review-btn {
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  padding: 10px 24px;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-dark);
+}
+
+.review-btn:hover {
+  background-color: var(--bg-light);
+  border-color: var(--text-medium);
+}
+
+.submit-btn {
+  background-color: var(--primary-blue);
+  border: none;
+  border-radius: var(--border-radius-small);
+  padding: 10px 24px;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+}
+
+.submit-btn:hover {
+  background-color: var(--primary-blue-dark);
+}
+

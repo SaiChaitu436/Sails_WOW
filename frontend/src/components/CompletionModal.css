@@ -1,0 +1,187 @@
+.completion-modal .modal-content {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.completion-header {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 20px 24px;
+}
+
+.completion-header .modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+.completion-body {
+  padding: 24px;
+}
+
+.status-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.status-title.passed {
+  color: #4caf50;
+}
+
+.status-title.failed {
+  color: #333;
+}
+
+.overall-score-text {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 0;
+}
+
+.score-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #4a90e2;
+}
+
+.category-scores-section {
+  margin: 24px 0;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.category-score-item {
+  margin-bottom: 16px;
+}
+
+.category-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.category-percentage {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.category-percentage.high {
+  color: #4caf50;
+}
+
+.category-percentage.medium {
+  color: #ff9800;
+}
+
+.category-percentage.low {
+  color: #f44336;
+}
+
+.category-score-bar {
+  height: 10px;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+}
+
+.category-score-bar.high .progress-bar {
+  background-color: #4caf50;
+}
+
+.category-score-bar.medium .progress-bar {
+  background-color: #ff9800;
+}
+
+.category-score-bar.low .progress-bar {
+  background-color: #f44336;
+}
+
+.criteria-section {
+  margin: 24px 0;
+  padding: 20px;
+  background-color: #f0f7ff;
+  border-radius: 6px;
+}
+
+.criteria-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.criteria-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+.criteria-item.met {
+  color: #4caf50;
+}
+
+.criteria-item.not-met {
+  color: #f44336;
+}
+
+.criteria-icon {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.next-assessment-info {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #fff3cd;
+  border-radius: 6px;
+  border-left: 4px solid #ffc107;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.date-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #856404;
+  margin-bottom: 8px;
+}
+
+.retry-text {
+  font-size: 14px;
+  color: #856404;
+  margin-bottom: 0;
+  margin-top: 8px;
+}
+
+.completion-footer {
+  border-top: 1px solid #e0e0e0;
+  padding: 16px 24px;
+  justify-content: center;
+}
+
+.close-btn {
+  background-color: #4a90e2;
+  border: none;
+  padding: 10px 32px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.close-btn:hover {
+  background-color: #357abd;
+}
+

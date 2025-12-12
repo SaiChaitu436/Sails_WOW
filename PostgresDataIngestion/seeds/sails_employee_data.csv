@@ -1,0 +1,104 @@
+Employee_Number,Employee_Name,Agreed_Band,Managers_Manager,Reporting_Manager,Department,Current_Account,Current_Cost_Center,Current_Designation
+SS001,Kiran A Sangita,6B,0,0,Cloud Delivery,S&A,Management,CEO
+SS003,Bala Murali Krishna Sangeetha,4A,Kiran A Sangita,Pavan Kumar Aryasomayajulu,Cloud Delivery,Equifax,EFX-UC-G-nxt-gen,Lead Software Engineer
+SS005,Sai Srinivasa Kartheek Gummaluri,2B,Narayana Imandi,Gopi Kumar Pydi,Cloud Delivery,Equifax,EFX-I9A-MSA,Lead Software Engineer
+SS006,Srirag  Kanninghat Nair,6A,0,Kiran A Sangita,Cloud Delivery,Loqbox,Loqbox,Director of Technical Delivery
+SS007,Pavan Kumar Aryasomayajulu,5A,0,Kiran A Sangita,Cloud Delivery,Equifax,EFX-UC-Edge,Principal Architect
+SS010,Kishore Kumar Barik,3B,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Lead Software Engineer
+SS016,Himaja Marada,3A,Kiran A Sangita,Pavan Kumar Aryasomayajulu,Cloud Delivery,Equifax,EFX-UC-G-nxt-gen,Software Engineer
+SS023,Anil Kumar Venuthurapalli,6A,0,Kiran A Sangita,Cloud Delivery,Equifax,EFX-I9HQ,Director of Technical Delivery
+SS030,Yellaji Rao Surakala,4A,Kiran A Sangita,Narayana Imandi,Cloud Delivery,Equifax,EFX-SI9,Lead Software Engineer
+SS032,Tarun Kumar Tunuguntla,3B,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Lead Software Engineer
+SS033,Srimanth Nadella,1B,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Test Engineer
+SS034,Sandhya Rani Akoju,1B,Sricharan Kocherlakota,Sruti Nair,Cloud Delivery,THURO,THURO,Data Entry Specialist
+SS036,Hema Sunitha Doddi,3A,Narayana Imandi,Gopi Kumar Pydi,Cloud Delivery,Equifax,EFX-I9A-MSA,Product Owner
+SS038,Ramu Panchadi,3A,Sricharan Kocherlakota,Pavan Kokkiragedda,Cloud Delivery,Revvity,Revvity-Instrument,Lead Software Engineer
+SS039,Karthik Mindi,2B,Narayana Imandi,Gopi Kumar Pydi,Cloud Delivery,Equifax,EFX-I9A-MSA,Test Engineer
+SS040,Kavita Dasgupta,5B,0,Kiran A Sangita,Support,S&A,HR,HR Business Partner
+SS045,Tarun Bhushan Tamma,3A,Sricharan Kocherlakota,Sree Bhanu Sateesh Kumar Neeladri,Cloud Delivery,MMS,MMS-Dev,Lead Software Engineer
+SS046,Veera Venkata Sai Preethi Abbireddy,3B,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Lead Software Engineer
+SS048,Nuthana Nettimi,3A,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Lead Software Engineer
+SS050,Santoshi Lakshmi Venuthurapalli,2A,Kiran A Sangita,Balakrishna Ganguneni,Cloud Delivery,Equifax,EFX-TWN-AM,Test Engineer
+SS052,Usha Ragha Sudha Chebiyyam,2B,Sricharan Kocherlakota,Sruti Nair,Cloud Delivery,THURO,THURO,Test Engineer
+SS061,Narayana Imandi,5A,0,Kiran A Sangita,Cloud Delivery,Equifax,EFX-SI9,Director of Technical Delivery
+SS063,Sai Spandana Komati,2B,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Senior Test Engineer
+SS064,Demudu Naidu Rongali,2B,Kiran A Sangita,Srirag  Kanninghat Nair,Support,S&A,IT,IT Engineer
+SS067,Rohita Kudapa,3A,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Senior Product Owner
+SS081,Sesodhar Reddy Battu,2A,Anil Kumar Venuthurapalli,Pavan Kokkiragedda,Cloud Delivery,Equifax,EFX-I9I-MSA,Business Analyst
+SS084,Sruti Nair,3B,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,THURO,THURO,Business Analyst
+SS090,Radhika Neelipudi,2B,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Associate Test Engineer
+SS096,Swetha Mattapalli,2B,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Senior Software Engineer
+SS100,Bhagya Raj Vaddi,2B,Kiran A Sangita,Narayana Imandi,Cloud Delivery,Equifax,EFX-IWS,DevOps Engineer
+SS101,Baby  Mathew kannath,2A,Kiran A Sangita,Sesha Sai Ongole,Cloud Delivery,CSI,CSI-WEB,Infrastructure Engineer
+SS110,Ramadevi Papugari,1B,Sricharan Kocherlakota,Sree Bhanu Sateesh Kumar Neeladri,Cloud Delivery,MMS,MMS-Dev,Software Engineer
+SS112,Anthony Steven Squires,3A,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Business Analyst
+SS113,Sushma Sri Durga Donthamsetti,2A,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Software Engineer
+SS114,Suresh Karri,2B,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Senior Software Engineer
+SS116,Pavan Kumar Yele,2B,Kiran A Sangita,Pavan Kumar Aryasomayajulu,Cloud Delivery,Equifax,EFX-UC-Edge,Test Engineer
+SS118,Balakrishna Ganguneni,6B,0,Kiran A Sangita,Cloud Delivery,S&A,Management,VP of Technical Delivery
+SS123,Sateesh Mattaparthi,2A,Kiran A Sangita,Kavita Dasgupta,Support,S&A,Finance,Financial Analyst
+SS130,Surya Kumari Vayilapally,2A,Kiran A Sangita,Balakrishna Ganguneni,Cloud Delivery,Equifax,EFX-TWN-AM,Test Engineer
+SS152,Manoj Kumar Sarma Medapati,3B,Kiran A Sangita,Pavan Kumar Aryasomayajulu,Cloud Delivery,Equifax,EFX-UC-Edge,Senior Test Engineer
+SS182,Sulakshman Kumar Yellapu,4A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,THURO,THURO,Lead Software Engineer
+SS184,Sricharan Kocherlakota,5B,0,Kiran A Sangita,Cloud Delivery,MMS,MMS,Director of Technical Delivery
+SS186,Nagendra Gopisetty,2B,Kiran A Sangita,Pavan Kumar Aryasomayajulu,Cloud Delivery,Equifax,EFX-UC-Edge,Software Architect
+SS187,Nilima Vadalamani,3A,Kiran A Sangita,Sesha Sai Ongole,Cloud Delivery,Products,SpeechPandit,Business Analyst
+SS195,Sandeep Daniel Maddirala,3A,Kiran A Sangita,Srirag  Kanninghat Nair,Products,Products,JA,Lead Software Engineer
+SS198,Sai Krishna Killamsetti,3A,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Software Engineer
+SS204,Padmini Peri,1B,Balakrishna Ganguneni,Rajanish Kumar Pandey,Support,S&A,TA,Recruiter
+SS206,Tirumala Vasu Padisetti,3B,Sricharan Kocherlakota,Pavan Kokkiragedda,Cloud Delivery,Revvity,Revvity-Instrument,Senior Software Engineer
+SS207,Kondala Rao Mantripragada,4A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,Revvity,Revvity,Lead Software Engineer
+SS209,Poorna Chandar Vadada,3B,Sricharan Kocherlakota,Pavan Kokkiragedda,Cloud Delivery,Revvity,Revvity-Instrument,Lead Software Engineer
+SS234,Sateesh Tadi,3A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,UI/UX Designer
+SS238,Devi Gedela,1B,Kiran A Sangita,Kavita Dasgupta,Support,S&A,Finance,Financial Analyst
+SS245,Raja Kumar Nagulapalli,3A,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Software Engineer
+SS247,Shanmukhasai Chilla,2A,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Senior Test Engineer
+SS256,Sai Rama Raju Penmatsa,4A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,Revvity,Revvity,Software Architect
+SS261,Geeta Mounica Sangita,2A,Anil Kumar Venuthurapalli,Pavan Kokkiragedda,Cloud Delivery,Equifax,EFX-FHQ,Lead Software Engineer
+SS263,Karthik Kumar Malapati,2A,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Test Engineer
+SS273,Venkata Kameswara Kiran Kumar Adhikarla,2B,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-PHQ,Software Architect
+SS277,Dinesh Varanasi,2B,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Senior Test Engineer
+SS279,Swapna Sarika Nakkella,2B,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Business Analyst
+SS282,Bhanu Prasad Sangita,2B,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Senior Test Engineer
+SS284,Raja Uday Bhaskar Narella,3A,Kiran A Sangita,Narayana Imandi,Cloud Delivery,Equifax,EFX-IWS,Business Analyst
+SS288,Veerababu Pedireddi,3B,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Senior Test Engineer
+SS290,Monica Tantepudi,3A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Technical Writer
+SS294,R K Sriharsha Choudhari Monavarty,1A,Kiran A Sangita,Kavita Dasgupta,Support,S&A,Operations,Infrastructure Engineer
+SS298,Praveena Kondapalli,2A,Kiran A Sangita,Sesha Sai Ongole,Support,S&A,TM,L & D Executive
+SS306,Venkata Vani Menda,2B,Kiran A Sangita,Narayana Imandi,Cloud Delivery,Equifax,EFX-IWS,Senior Test Engineer
+SS313,Krishnaveni Kasarapu,2B,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Senior Software Engineer
+SS317,Chaitanya Kumar Murikipudi,2A,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,UI/UX Designer
+SS327,Kiran Santosh Kumar Korubilli,3A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,Revvity,Revvity,Lead Software Engineer
+SS330,Lakshminarayana Nidadala,2B,Sricharan Kocherlakota,Pavan Kokkiragedda,Cloud Delivery,Revvity,Revvity-Instrument,Software Engineer
+SS333,Vasantha Naidu Pechetti,2B,Sricharan Kocherlakota,Sree Bhanu Sateesh Kumar Neeladri,Cloud Delivery,MMS,MMS-Dev,Senior Software Engineer
+SS334,Geetha Billa,2A,Kiran A Sangita,Srirag  Kanninghat Nair,Cloud Delivery,Loqbox,Loqbox,Senior Software Engineer
+SS336,Wasim Iqbal,2B,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,Revvity,Revvity,Senior Test Engineer
+SS337,Surendra Babu Puppalla,2B,Sricharan Kocherlakota,Sree Bhanu Sateesh Kumar Neeladri,Cloud Delivery,MMS,MMS-Dev,Senior Software Engineer
+SS339,Bhaskar Rao Meda,2A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Test Engineer
+SS343,Shirin S,3A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Technical Writer
+SS361,Ram Baji Gadam,2A,Sricharan Kocherlakota,Sree Bhanu Sateesh Kumar Neeladri,Cloud Delivery,MMS,MMS-Dev,Senior Software Engineer
+SS366,Kalidasu Surada,2B,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,Revvity,Revvity,Senior Software Engineer
+SS370,Leela Naga Durga Sri Ram Gidda,4B,Kiran A Sangita,Narayana Imandi,Cloud Delivery,Equifax,EFX-IWS,Software Architect
+SS398,Rajeev Kumar Gorikapudi,3A,Sricharan Kocherlakota,Pavan Kokkiragedda,Cloud Delivery,Revvity,Revvity-Instrument,Software Engineer
+SS403,Raju Adapa,3B,Narayana Imandi,Gopi Kumar Pydi,Cloud Delivery,Equifax,EFX-EH,Senior Software Engineer
+SS404,Gopi Kumar Pydi,4B,Kiran A Sangita,Narayana Imandi,Cloud Delivery,Bench,EFX-I9A-MSA,Delivery Manager
+SS406,Kiran Kumar Malladi,4B,Kiran A Sangita,Pavan Kumar Aryasomayajulu,AI,Data,AI CoE,Senior Data Engineer
+SS407,Hemanth Yadav Govu,3A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Technical Writer
+SS408,Preeti Reddy N,4A,Kiran A Sangita,Balakrishna Ganguneni,Support,S&A,Biz Dev,Business Development Manager
+SS409,Kiran Panchali,1A,Balakrishna Ganguneni,Rajanish Kumar Pandey,Support,S&A,TA,Senior Recruiter
+SS415,Ravi Kumar Dokkari,1B,Balakrishna Ganguneni,Rajanish Kumar Pandey,Support,S&A,TA,Talent Acquisition Lead
+SS417,Rahul Singh Khichi,4A,Kiran A Sangita,Balakrishna Ganguneni,Cloud Delivery,Equifax,EFX-GSO,Senior Software Engineer
+SS419,Rajanish Kumar Pandey,4B,Kiran A Sangita,Balakrishna Ganguneni,Support,S&A,TA,Business Development Partner
+SS420,Meghana Pothuri,2A,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Senior Test Engineer
+SS421,Chandra Sekhar Boddi,3B,Sricharan Kocherlakota,Pavan Kokkiragedda,Cloud Delivery,Revvity,Revvity-Instrument,Senior Test Engineer
+SS426,Sheshank Tata,3B,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Senior Software Engineer
+SS430,Sirisha Akella,2B,Anil Kumar Venuthurapalli,Pavan Kokkiragedda,Cloud Delivery,Bench,Maternity Leave,Senior Software Engineer
+SS431,Satyala Gopi,2A,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-I9HQ,Senior Software Engineer
+SS444,Prathyusa Bobbala,3A,Sricharan Kocherlakota,Pavan Kokkiragedda,Cloud Delivery,Revvity,Revvity-Instrument,Senior Software Engineer
+SS446,Sree Bhanu Sateesh Kumar Neeladri,5A,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,MMS,MMS,Technical Delivery Manager
+SS453,Sunil Manohar Patnaik,4A,Kiran A Sangita,Balakrishna Ganguneni,Support,S&A,Biz Dev,Senior Marketing Manager
+SS454,Sesha Sai Ongole,6A,0,Kiran A Sangita,Support,S&A,TM,TM Business Partner
+SS456,Satish Bokam,1B,Kiran A Sangita,Pavan Kumar Aryasomayajulu,Cloud Delivery,Equifax,EFX-UC-G-nxt-gen,Software Engineer
+SS463,Harivishwanath Goud Gundlapally,TBD,Kiran A Sangita,Sricharan Kocherlakota,Cloud Delivery,Revvity,Revvity,Lead UI Developer
+SS470,Tejasri Yadlapati,4B,Kiran A Sangita,Srirag  Kanninghat Nair,Products,Products,JA,Lead Software Engineer
+SS471,Ashok Thota,3A,Kiran A Sangita,Anil Kumar Venuthurapalli,Cloud Delivery,Equifax,EFX-EH,Senior Software Engineer

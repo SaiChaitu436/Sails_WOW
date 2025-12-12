@@ -1,0 +1,104 @@
+[0m08:56:58.828706 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002004BB765D0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002004884D550>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002004BA06420>]}
+
+
+============================== 08:56:58.833200 | d4bbf04d-133b-4e04-b819-47b51c9d3cd7 ==============================
+[0m08:56:58.833200 [info ] [MainThread]: Running with dbt=1.8.9
+[0m08:56:58.833200 [debug] [MainThread]: running dbt with arguments {'invocation_command': 'dbt init PostgresDataIngestion', 'write_json': 'True', 'no_print': 'None', 'log_format': 'default', 'printer_width': '80', 'warn_error': 'None', 'indirect_selection': 'eager', 'fail_fast': 'False', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True', 'log_path': 'logs', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'partial_parse': 'True', 'use_experimental_parser': 'False', 'version_check': 'True', 'introspect': 'True', 'quiet': 'False', 'empty': 'None', 'log_cache_events': 'False', 'debug': 'False', 'profiles_dir': 'C:\\Users\\SAILS-DM340\\.dbt', 'use_colors': 'True', 'cache_selected_only': 'False', 'target_path': 'None'}
+[0m08:56:58.879796 [debug] [MainThread]: Starter project path: C:\Users\SAILS-DM340\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbt\include\starter_project
+[0m08:56:58.901213 [info ] [MainThread]: 
+Your new dbt project "PostgresDataIngestion" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m08:56:58.901213 [info ] [MainThread]: Setting up your profile.
+[0m08:57:53.564636 [info ] [MainThread]: Profile PostgresDataIngestion written to C:\Users\SAILS-DM340\.dbt\profiles.yml using target's profile_template.yml and your supplied values. Run 'dbt debug' to validate the connection.
+[0m08:57:53.572605 [debug] [MainThread]: Command `dbt init` succeeded at 08:57:53.572605 after 54.93 seconds
+[0m08:57:53.572605 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002004BB765D0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002004CEB7770>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002004BB46C00>]}
+[0m08:57:53.572605 [debug] [MainThread]: Flushing usage events
+[0m09:03:11.157037 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021A44085610>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021A44085700>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021A44085580>]}
+
+
+============================== 09:03:11.168637 | f8e3b69a-c727-4795-bb66-460a50347ba1 ==============================
+[0m09:03:11.168637 [info ] [MainThread]: Running with dbt=1.8.9
+[0m09:03:11.170414 [debug] [MainThread]: running dbt with arguments {'use_colors': 'True', 'write_json': 'True', 'printer_width': '80', 'log_format': 'default', 'profiles_dir': 'C:\\Users\\SAILS-DM340\\.dbt', 'warn_error': 'None', 'log_path': 'logs', 'partial_parse': 'True', 'indirect_selection': 'eager', 'send_anonymous_usage_stats': 'True', 'static_parser': 'True', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'fail_fast': 'False', 'use_experimental_parser': 'False', 'version_check': 'True', 'quiet': 'False', 'introspect': 'True', 'empty': 'None', 'log_cache_events': 'False', 'debug': 'False', 'no_print': 'None', 'invocation_command': 'dbt debug', 'cache_selected_only': 'False', 'target_path': 'None'}
+[0m09:03:11.192317 [info ] [MainThread]: dbt version: 1.8.9
+[0m09:03:11.201157 [info ] [MainThread]: python version: 3.12.0
+[0m09:03:11.202409 [info ] [MainThread]: python path: C:\Users\SAILS-DM340\AppData\Local\Programs\Python\Python312\python.exe
+[0m09:03:11.202409 [info ] [MainThread]: os info: Windows-11-10.0.26200-SP0
+[0m09:03:11.291102 [info ] [MainThread]: Using profiles dir at C:\Users\SAILS-DM340\.dbt
+[0m09:03:11.291102 [info ] [MainThread]: Using profiles.yml file at C:\Users\SAILS-DM340\.dbt\profiles.yml
+[0m09:03:11.291102 [info ] [MainThread]: Using dbt_project.yml file at C:\Users\SAILS-DM340\OneDrive - Sails Software Solutions Pvt Ltd\Desktop\Testing Folder\Sails Wow\dbt_project.yml
+[0m09:03:11.295098 [error] [MainThread]: Encountered an error:
+Internal Error
+  Profile should not be None if loading profile completed
+[0m09:03:11.296237 [debug] [MainThread]: Command `dbt debug` failed at 09:03:11.296237 after 0.32 seconds
+[0m09:03:11.298312 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021A438352B0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021A4413DB80>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021A43EBBA70>]}
+[0m09:03:11.299326 [debug] [MainThread]: Flushing usage events
+[0m09:06:15.225704 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FCB451D00>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FCD806660>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FCD806690>]}
+
+
+============================== 09:06:15.230527 | d9fc7e45-7930-4718-b8a2-72fdb97d5cd5 ==============================
+[0m09:06:15.230527 [info ] [MainThread]: Running with dbt=1.8.9
+[0m09:06:15.230527 [debug] [MainThread]: running dbt with arguments {'write_json': 'True', 'use_colors': 'True', 'no_print': 'None', 'profiles_dir': 'C:\\Users\\SAILS-DM340\\.dbt', 'printer_width': '80', 'warn_error': 'None', 'log_path': 'logs', 'partial_parse': 'True', 'fail_fast': 'False', 'send_anonymous_usage_stats': 'True', 'indirect_selection': 'eager', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'static_parser': 'True', 'version_check': 'True', 'use_experimental_parser': 'False', 'quiet': 'False', 'introspect': 'True', 'empty': 'None', 'log_cache_events': 'False', 'debug': 'False', 'log_format': 'default', 'invocation_command': 'dbt debug', 'cache_selected_only': 'False', 'target_path': 'None'}
+[0m09:06:15.261611 [info ] [MainThread]: dbt version: 1.8.9
+[0m09:06:15.261611 [info ] [MainThread]: python version: 3.12.0
+[0m09:06:15.261611 [info ] [MainThread]: python path: C:\Users\SAILS-DM340\AppData\Local\Programs\Python\Python312\python.exe
+[0m09:06:15.261611 [info ] [MainThread]: os info: Windows-11-10.0.26200-SP0
+[0m09:06:15.360862 [info ] [MainThread]: Using profiles dir at C:\Users\SAILS-DM340\.dbt
+[0m09:06:15.360862 [info ] [MainThread]: Using profiles.yml file at C:\Users\SAILS-DM340\.dbt\profiles.yml
+[0m09:06:15.360862 [info ] [MainThread]: Using dbt_project.yml file at C:\Users\SAILS-DM340\OneDrive - Sails Software Solutions Pvt Ltd\Desktop\Testing Folder\Sails Wow\dbt_project.yml
+[0m09:06:15.364597 [info ] [MainThread]: adapter type: postgres
+[0m09:06:15.364597 [info ] [MainThread]: adapter version: 1.9.0
+[0m09:06:15.364597 [info ] [MainThread]: Configuration:
+[0m09:06:15.367354 [info ] [MainThread]:   profiles.yml file [[32mOK found and valid[0m]
+[0m09:06:15.367354 [info ] [MainThread]:   dbt_project.yml file [[31mERROR not found[0m]
+[0m09:06:15.369536 [info ] [MainThread]: Required dependencies:
+[0m09:06:15.371167 [debug] [MainThread]: Executing "git --help"
+[0m09:06:15.446591 [debug] [MainThread]: STDOUT: "b"usage: git [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--no-lazy-fetch]\n           [--no-optional-locks] [--no-advice] [--bare] [--git-dir=<path>]\n           [--work-tree=<path>] [--namespace=<name>] [--config-env=<name>=<envvar>]\n           <command> [<args>]\n\nThese are common Git commands used in various situations:\n\nstart a working area (see also: git help tutorial)\n   clone      Clone a repository into a new directory\n   init       Create an empty Git repository or reinitialize an existing one\n\nwork on the current change (see also: git help everyday)\n   add        Add file contents to the index\n   mv         Move or rename a file, a directory, or a symlink\n   restore    Restore working tree files\n   rm         Remove files from the working tree and from the index\n\nexamine the history and state (see also: git help revisions)\n   bisect     Use binary search to find the commit that introduced a bug\n   diff       Show changes between commits, commit and working tree, etc\n   grep       Print lines matching a pattern\n   log        Show commit logs\n   show       Show various types of objects\n   status     Show the working tree status\n\ngrow, mark and tweak your common history\n   backfill   Download missing objects in a partial clone\n   branch     List, create, or delete branches\n   commit     Record changes to the repository\n   merge      Join two or more development histories together\n   rebase     Reapply commits on top of another base tip\n   reset      Reset current HEAD to the specified state\n   switch     Switch branches\n   tag        Create, list, delete or verify a tag object signed with GPG\n\ncollaborate (see also: git help workflows)\n   fetch      Download objects and refs from another repository\n   pull       Fetch from and integrate with another repository or a local branch\n   push       Update remote refs along with associated objects\n\n'git help -a' and 'git help -g' list available subcommands and some\nconcept guides. See 'git help <command>' or 'git help <concept>'\nto read about a specific subcommand or concept.\nSee 'git help git' for an overview of the system.\n""
+[0m09:06:15.446591 [debug] [MainThread]: STDERR: "b''"
+[0m09:06:15.448648 [info ] [MainThread]:  - git [[32mOK found[0m]
+
+[0m09:06:15.448648 [info ] [MainThread]: Connection:
+[0m09:06:15.451090 [info ] [MainThread]:   host: localhost
+[0m09:06:15.451090 [info ] [MainThread]:   port: 5433
+[0m09:06:15.452870 [info ] [MainThread]:   user: postgres
+[0m09:06:15.453409 [info ] [MainThread]:   database: SAILS_WOW
+[0m09:06:15.455277 [info ] [MainThread]:   schema: public
+[0m09:06:15.455277 [info ] [MainThread]:   connect_timeout: 10
+[0m09:06:15.457035 [info ] [MainThread]:   role: None
+[0m09:06:15.457035 [info ] [MainThread]:   search_path: None
+[0m09:06:15.457035 [info ] [MainThread]:   keepalives_idle: 0
+[0m09:06:15.460513 [info ] [MainThread]:   sslmode: None
+[0m09:06:15.460513 [info ] [MainThread]:   sslcert: None
+[0m09:06:15.462574 [info ] [MainThread]:   sslkey: None
+[0m09:06:15.463938 [info ] [MainThread]:   sslrootcert: None
+[0m09:06:15.463938 [info ] [MainThread]:   application_name: dbt
+[0m09:06:15.466606 [info ] [MainThread]:   retries: 1
+[0m09:06:15.467236 [info ] [MainThread]: Registered adapter: postgres=1.9.0
+[0m09:06:16.061201 [debug] [MainThread]: Acquiring new postgres connection 'debug'
+[0m09:06:16.269123 [debug] [MainThread]: Using postgres connection "debug"
+[0m09:06:16.269123 [debug] [MainThread]: On debug: select 1 as id
+[0m09:06:16.269123 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m09:06:16.366176 [debug] [MainThread]: SQL status: SELECT 1 in 0.091 seconds
+[0m09:06:16.367980 [debug] [MainThread]: On debug: Close
+[0m09:06:16.367980 [info ] [MainThread]:   Connection test: [[32mOK connection ok[0m]
+
+[0m09:06:16.371115 [info ] [MainThread]: [31m1 check failed:[0m
+[0m09:06:16.371115 [info ] [MainThread]: Project loading failed for the following reason:
+ project path <C:\Users\SAILS-DM340\OneDrive - Sails Software Solutions Pvt Ltd\Desktop\Testing Folder\Sails Wow\dbt_project.yml> not found
+
+[0m09:06:16.375136 [debug] [MainThread]: Command `dbt debug` failed at 09:06:16.375136 after 1.47 seconds
+[0m09:06:16.375136 [debug] [MainThread]: Connection 'debug' was properly closed.
+[0m09:06:16.375136 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FCB451D00>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FCDD39370>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FCDE89DF0>]}
+[0m09:06:16.375136 [debug] [MainThread]: Flushing usage events
