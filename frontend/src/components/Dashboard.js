@@ -198,20 +198,38 @@ const Dashboard = () => {
       });
     }
 
-    // Load completed competencies
-    const completed = localStorage.getItem("completedCompetencies");
-    if (completed) {
-      const completedMap = JSON.parse(completed);
+    // Load completed categories (API-synced only)
+    const completedCategories = localStorage.getItem("completedCategories");
+    if (completedCategories) {
+      const completedMap = JSON.parse(completedCategories);
       // Convert category-{index} keys to competency IDs
       COMPETENCIES.forEach((comp, index) => {
         const key = `category-${index}`;
-        if (completedMap[key]) {
-          progressMap[comp.id] = completedMap[key];
+        const categoryData = completedMap[key];
+        // Only count as progress if API synced
+        if (categoryData && categoryData.apiSynced) {
+          progressMap[comp.id] = categoryData.questionsCount || 25;
         }
       });
     }
 
-    console.log("progressMap",progressMap)
+    // Also check legacy completedCompetencies for backward compatibility
+    const completed = localStorage.getItem("completedCompetencies");
+    if (completed) {
+      const completedMap = JSON.parse(completed);
+      COMPETENCIES.forEach((comp, index) => {
+        const key = `category-${index}`;
+        // Only use if not already set from completedCategories
+        if (!progressMap[comp.id] && completedMap[key]) {
+          // Legacy data - check if we can verify API sync
+          const categoryKey = `category-${index}`;
+          const categoryData = JSON.parse(localStorage.getItem("completedCategories") || "{}")[categoryKey];
+          if (categoryData?.apiSynced) {
+            progressMap[comp.id] = completedMap[key];
+          }
+        }
+      });
+    }
 
     setCompetencyProgress(progressMap);
 
@@ -302,9 +320,21 @@ const Dashboard = () => {
     return (progress / 25) * 100;
   };
 
+  // Check if category is completed AND synced with API
+  const isCategoryCompletedAndSynced = (categoryIndex) => {
+    const completedCategories = localStorage.getItem('completedCategories') || '{}';
+    const completedMap = JSON.parse(completedCategories);
+    const categoryKey = `category-${categoryIndex}`;
+    return completedMap[categoryKey]?.apiSynced === true;
+  };
+
   const isCompleted = (competencyId) => {
-    const progress = competencyProgress[competencyId] || 0;
-    return progress === 25;
+    // Find the category index for this competency
+    const categoryIndex = COMPETENCIES.findIndex(c => c.id === competencyId);
+    if (categoryIndex === -1) return false;
+    
+    // Check if it's completed AND API synced
+    return isCategoryCompletedAndSynced(categoryIndex);
   };
 
   const isUnlocked = (competency) => {
@@ -312,15 +342,15 @@ const Dashboard = () => {
     if (competency.order === 1) {
       return true;
     }
-
-    // For other cards, check if the previous card is completed
+    
+    // For other cards, check if the previous card is completed AND API synced
     const previousCompetency = COMPETENCIES.find(
       (c) => c.order === competency.order - 1
     );
     if (previousCompetency) {
       return isCompleted(previousCompetency.id);
     }
-
+    
     return false;
   };
 
@@ -498,15 +528,33 @@ const Dashboard = () => {
                   >
                     <Card.Body className="competency-card-body">
                       {!unlocked && <Lock className="competency-lock" />}
-                      <img
-                        src={competency.image}
-                        alt={competency.name}
-                        className="competency-icon"
-                        onError={(e) => {
-                          // Fallback if image doesn't exist
-                          e.target.style.display = "none";
-                        }}
-                      />
+                      <div className="competency-icon-wrapper" style={{ position: 'relative' }}>
+                        <img
+                          src={competency.image}
+                          alt={competency.name}
+                          className="competency-icon"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                        {completed && unlocked && (
+                          <CheckCircle2 
+                            className="competency-completed-badge"
+                            style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              width: '32px',
+                              height: '32px',
+                              color: 'white',
+                              backgroundColor: 'rgba(76, 175, 80, 0.9)',
+                              borderRadius: '50%',
+                              padding: '4px',
+                              zIndex: 5
+                            }}
+                          />
+                        )}
+                      </div>
 
                       <h5 className="competency-name">{competency.name}</h5>
 
