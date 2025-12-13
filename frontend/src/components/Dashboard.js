@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Container, Card, Button, ProgressBar } from "react-bootstrap";
-import {
-  ArrowBack,
-  ArrowForward,
-  AccessTime,
-  ChatBubbleOutline,
-  Refresh,
-  Group,
-  // PersonCheck,
-  Psychology,
-  Lock,
-} from "@mui/icons-material";
-import axios from 'axios';
+import { ArrowLeft, CheckCircle2, Clock, LogOut, Lock } from "lucide-react";
+import axios from "axios";
 import "../styles.css";
 import "./Dashboard.css";
 
@@ -20,44 +10,61 @@ const COMPETENCIES = [
   {
     id: "Communication",
     name: "COMMUNICATION",
-    color: "blue",
-    icon: ChatBubbleOutline,
+    color: "#0001fc",
+    image: "/images/communication.png",
     questions: 25,
     order: 1,
   },
   {
     id: "Adaptability & Learning Agility",
     name: "ADAPTABILITY & LEARNING AGILITY",
-    color: "orange",
-    icon: Refresh,
+    color: "#d87e1d",
+    image: "/images/adaptability.png",
     questions: 25,
     order: 2,
   },
   {
     id: "Teamwork & Collaboration",
     name: "TEAMWORK & COLLABORATION",
-    color: "green",
-    icon: Group,
+    color: "#41b64d",
+    image: "/images/teamwork.png",
     questions: 25,
     order: 3,
   },
   {
     id: "Accountability & Ownership",
     name: "ACCOUNTABILITY & OWNERSHIP",
-    color: "brown",
-    icon: Group,
+    color: "#880a0d",
+    image: "/images/accountability.png",
     questions: 25,
     order: 4,
   },
   {
     id: "Problem Solving & Critical Thinking",
     name: "PROBLEM SOLVING & CRITICAL THINKING",
-    color: "purple",
-    icon: Psychology,
+    color: "#9338c3",
+    image: "/images/problem-solving.png",
     questions: 25,
     order: 5,
   },
 ];
+
+const createGradient = (hexColor) => {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+
+  // Create darker version for gradient
+  const darkerR = Math.max(0, r - 30);
+  const darkerG = Math.max(0, g - 30);
+  const darkerB = Math.max(0, b - 30);
+
+  const darkerHex = `#${darkerR.toString(16).padStart(2, "0")}${darkerG
+    .toString(16)
+    .padStart(2, "0")}${darkerB.toString(16).padStart(2, "0")}`;
+
+  return `linear-gradient(135deg, ${hexColor} 0%, ${darkerHex} 100%)`;
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -65,6 +72,7 @@ const Dashboard = () => {
   const [userName, setUserName] = useState("");
   const [currentBand, setCurrentBand] = useState("");
   const [assessmentStatus, setAssessmentStatus] = useState("Not Taken");
+  const [completedDate, setCompletedDate] = useState(null);
   const [assessmentHistory, setAssessmentHistory] = useState([]);
   const [questionsData, setQuestionsData] = useState({});
   const [competencyProgress, setCompetencyProgress] = useState({});
@@ -72,63 +80,81 @@ const Dashboard = () => {
   const [toastMessage, setToastMessage] = useState("");
 
   const getQuestions = (band, category) => {
-    axios.get(`http://localhost:8000/bands/band${band}/category/${category}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      }
-    }).then((response) => {
-      console.log(response.data);
-      // const data = response.data.questions;
+    axios
+      .get(`http://localhost:8000/bands/band${band}/random-questions`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        const data = response.data.questions;
 
-      // Map raw category text to competency IDs
-      // const categoryToCompetency = {
-      //   "Self evaluation Communication": "Communication",
-      //   "Self evaluation Adaptability & Learning Agility": "Adaptability & Learning Agility",
-      //   "Self-evaluation Teamwork & Collaboration": "Teamwork & Collaboration",
-      //   "Self evaluation Accountability & Ownership": "Accountability & Ownership",
-      //   "Self evaluation Problem Solving & Critical Thinking": "Problem Solving & Critical Thinking",
-      // };
+        // Map raw category text to competency IDs
+        const categoryToCompetency = {
+          "Self evaluation Communication": "Communication",
+          "Self evalauation Adaptability & Learning Agility":
+            "Adaptability & Learning Agility",
+          "Self evaluation Teamwork & Collaboration":
+            "Teamwork & Collaboration",
+          "Self evalauation Accountability & Ownership":
+            "Accountability & Ownership",
+          "Self evaluation Problem Solving & Critical Thinking":
+            "Problem Solving & Critical Thinking",
+        };
 
-      // const grouped = data.reduce((acc, item) => {
-      //   // Convert category name → correct competency id
-      //   const compId = categoryToCompetency[item.category];
+        const grouped = data.reduce((acc, item) => {
+          // Convert category name → correct competency id
+          const compId = categoryToCompetency[item.category];
 
-      //   if (!compId) return acc; // skip if no match
+          if (!compId) return acc; // skip if no match
 
-      //   if (!acc[compId]) acc[compId] = [];
-      //   acc[compId].push(item.question);
+          if (!acc[compId]) acc[compId] = [];
+          acc[compId].push(item.question);
 
-      //   return acc;
-      // }, {});
+          return acc;
+        }, {});
 
-      // console.log(grouped);
-      // setQuestionsData(grouped);
-
-
-    }).catch((error) => {
-      console.error('There was an error fetching the questions!', error);
-    });
-  }
+        console.log(grouped);
+        setQuestionsData(grouped);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the questions!", error);
+      });
+  };
 
   const getBandData = () => {
-    axios.get('http://localhost:8000/employeeData/SS003', {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      }
-    }).then((response) => {
-      console.log(response.data);
-      setUserName(response.data.Employee_Name);
-      setCurrentBand(response.data.Agreed_Band);
-    }).catch((error) => {
-      console.error('There was an error fetching the band data!', error);
-    });
-  }
+    axios
+      .get("http://localhost:8000/employeeData/SS005", {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        getQuestions(response.data.Agreed_Band);
+        setUserName(response.data.Employee_Name);
+        setCurrentBand(response.data.Agreed_Band);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the band data!", error);
+      });
+  };
 
   useEffect(() => {
     getBandData();
   }, []);
+
+  // Watch for completion of all competencies
+  // useEffect(() => {
+  //   if (Object.keys(competencyProgress).length === 0) return;
+
+  //   const allCompleted = COMPETENCIES.every((comp) => {
+  //     const compProgress = competencyProgress[comp.id] || 0;
+  //     return compProgress === 25;
+  //   });
+  // }, [competencyProgress, assessmentStatus, currentBand]);
 
   useEffect(() => {
     // Load user data from localStorage
@@ -141,20 +167,24 @@ const Dashboard = () => {
 
     // Load assessment data from localStorage
     const assessmentData = localStorage.getItem("assessmentData");
-    if (assessmentData) {
-      const data = JSON.parse(assessmentData);
-      setCurrentBand(data.currentBand || "2A");
-      setAssessmentStatus(data.status || "Not Taken");
-    }
+    console.log("assesmentData",assessmentData)
+    // if (assessmentData) {
+    //   const data = JSON.parse(assessmentData);
+    //   setAssessmentStatus(data.status || "Not Taken");
+      // if (data.completedDate) {
+      //   setCompletedDate(new Date(data.completedDate));
+      // }
+    // }
 
     // Check if there's an in-progress assessment
     const progress = localStorage.getItem("assessmentProgress");
+    console.log("progress",progress)
+    let progressMap = {};
     if (progress) {
       setAssessmentStatus("In Progress");
       // Calculate competency progress
       const progressData = JSON.parse(progress);
       const answers = progressData.answers || {};
-      const progressMap = {};
 
       COMPETENCIES.forEach((comp, index) => {
         let answered = 0;
@@ -166,7 +196,6 @@ const Dashboard = () => {
         }
         progressMap[comp.id] = answered;
       });
-      setCompetencyProgress(progressMap);
     }
 
     // Load completed competencies
@@ -174,21 +203,55 @@ const Dashboard = () => {
     if (completed) {
       const completedMap = JSON.parse(completed);
       // Convert category-{index} keys to competency IDs
-      const progressMap = {};
       COMPETENCIES.forEach((comp, index) => {
         const key = `category-${index}`;
         if (completedMap[key]) {
           progressMap[comp.id] = completedMap[key];
         }
       });
-      setCompetencyProgress((prev) => ({ ...prev, ...progressMap }));
     }
 
+    console.log("progressMap",progressMap)
+
+    setCompetencyProgress(progressMap);
+
+    // Check if all competencies are completed (full assessment completed)
+    // const allCompleted = COMPETENCIES.every((comp) => {
+    //   const compProgress = progressMap[comp.id] || 0;
+    //   return compProgress === 25;
+    // });
+
+    // if (allCompleted && COMPETENCIES.length > 0) {
+    //   // Check if we have a stored completion date
+    //   const storedCompletedDate = localStorage.getItem(
+    //     "assessmentCompletedDate"
+    //   );
+    //   if (storedCompletedDate) {
+    //     setCompletedDate(new Date(storedCompletedDate));
+    //     setAssessmentStatus("completed");
+    //   } else {
+    //     // Mark as completed and store date
+    //     const now = new Date();
+    //     setCompletedDate(now);
+    //     setAssessmentStatus("completed");
+    //     localStorage.setItem("assessmentCompletedDate", now.toISOString());
+    //     const currentBandData = currentBand || "2A";
+    //     localStorage.setItem(
+    //       "assessmentData",
+    //       JSON.stringify({
+    //         currentBand: currentBandData,
+    //         status: "completed",
+    //         completedDate: now.toISOString(),
+    //       })
+    //     );
+    //   }
+    // }
+
     // Load assessment history
-    const history = localStorage.getItem("assessmentHistory");
-    if (history) {
-      setAssessmentHistory(JSON.parse(history));
-    }
+    // const history = localStorage.getItem("assessmentHistory");
+    // if (history) {
+    //   setAssessmentHistory(JSON.parse(history));
+    // }
 
     // Check for toast message
     const justCompleted = sessionStorage.getItem("justCompleted");
@@ -203,6 +266,23 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleCompetencyClick = (competency) => {
+    // Check if assessment can be taken (not on cooldown)
+    if (!canTakeAssessment() && assessmentStatus === "completed") {
+      setToastMessage(
+        `Assessment available in ${getDaysUntilNextAssessment()} days`
+      );
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
+      return;
+    }
+
+    // Check if the competency is unlocked
+    if (!isUnlocked(competency)) {
+      return;
+    }
+
     // Set the category index based on competency order (0-indexed)
     const categoryIndex = competency.order - 1;
     navigate(`/assessment?category=${categoryIndex}`, { state: questionsData }); // Replaced history.push with navigate
@@ -227,27 +307,59 @@ const Dashboard = () => {
     return progress === 25;
   };
 
+  const isUnlocked = (competency) => {
+    // First card (order 1) is always unlocked
+    if (competency.order === 1) {
+      return true;
+    }
+
+    // For other cards, check if the previous card is completed
+    const previousCompetency = COMPETENCIES.find(
+      (c) => c.order === competency.order - 1
+    );
+    if (previousCompetency) {
+      return isCompleted(previousCompetency.id);
+    }
+
+    return false;
+  };
+
+  const getDaysUntilNextAssessment = () => {
+    if (!completedDate) return 0;
+    const daysSinceCompletion = Math.floor(
+      (new Date().getTime() - completedDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return Math.max(0, 45 - daysSinceCompletion);
+  };
+
+  const canTakeAssessment = () => {
+    if (assessmentStatus === "Not Taken" || assessmentStatus === "In Progress")
+      return true;
+    if (assessmentStatus === "completed") {
+      return getDaysUntilNextAssessment() === 0;
+    }
+    return true;
+  };
+
   return (
     <div className="dashboard-container">
       <Container className="py-4">
         {/* Header */}
         <div className="dashboard-header mb-4">
           <div className="d-flex align-items-center">
-            <ArrowBack
+            <ArrowLeft
               className="header-icon"
               onClick={() => window.history.back()}
               style={{ cursor: "pointer", marginRight: "16px" }}
             />
             <div>
               <h1 className="dashboard-title">Employee Dashboard</h1>
-              <p className="dashboard-subtitle">
-                Welcome back, {userName}
-              </p>
+              <p className="dashboard-subtitle">Welcome back, {userName}</p>
             </div>
           </div>
           <div className="d-flex align-items-center">
             <div className="band-badge">{currentBand}</div>
-            <ArrowForward
+            <LogOut
               className="header-icon"
               onClick={handleLogout}
               style={{ cursor: "pointer", marginLeft: "16px" }}
@@ -263,7 +375,7 @@ const Dashboard = () => {
                 <h6 className="card-label">Current Band</h6>
                 <div className="d-flex align-items-center justify-content-between">
                   <p className="card-value">{currentBand}</p>
-                  <AccessTime className="info-icon blue-icon" />
+                  <Clock className="info-icon blue-icon" />
                 </div>
               </Card.Body>
             </Card>
@@ -273,13 +385,80 @@ const Dashboard = () => {
               <Card.Body>
                 <h6 className="card-label">Band Assessment Status</h6>
                 <div className="d-flex align-items-center justify-content-between">
-                  <p className="card-value">{assessmentStatus}</p>
-                  <AccessTime className="info-icon orange-icon" />
+                  <p className="card-value">
+                    {assessmentStatus === "completed"
+                      ? "Completed"
+                      : assessmentStatus === "In Progress"
+                      ? "In Progress"
+                      : "Not Taken"}
+                  </p>
+                  {assessmentStatus === "completed" ? (
+                    <CheckCircle2
+                      className="info-icon"
+                      style={{ color: "#4caf50" }}
+                    />
+                  ) : (
+                    <Clock className="info-icon orange-icon" />
+                  )}
                 </div>
               </Card.Body>
             </Card>
           </div>
         </div>
+
+        {/* 45-Day Timer Display */}
+        {assessmentStatus === "completed" &&
+          getDaysUntilNextAssessment() > 0 && (
+            <Card
+              className="card-base mb-4"
+              style={{
+                backgroundColor: "#e3f2fd",
+                border: "1px solid #4a90e2",
+              }}
+            >
+              <Card.Body>
+                <div className="d-flex align-items-center gap-3">
+                  <div
+                    style={{
+                      backgroundColor: "#4a90e2",
+                      borderRadius: "50%",
+                      padding: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Clock
+                      className="info-icon"
+                      style={{ color: "white", fontSize: "24px" }}
+                    />
+                  </div>
+                  <div>
+                    <p
+                      className="mb-1"
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        color: "#333",
+                      }}
+                    >
+                      Next Assessment Available In
+                    </p>
+                    <p
+                      className="mb-0"
+                      style={{
+                        fontSize: "28px",
+                        fontWeight: 700,
+                        color: "#4a90e2",
+                      }}
+                    >
+                      {getDaysUntilNextAssessment()} days
+                    </p>
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
+          )}
 
         {/* WoW Section */}
         <Card className="wow-section mb-4">
@@ -294,21 +473,40 @@ const Dashboard = () => {
 
             <div className="competency-cards-container p-3">
               {COMPETENCIES.map((competency) => {
-                const IconComponent = competency.icon;
                 const progress = getProgressPercentage(competency.id);
                 const completed = isCompleted(competency.id);
+                const unlocked = isUnlocked(competency);
+                const gradientStyle = {
+                  background: createGradient(competency.color),
+                  color: "white",
+                };
+                const badgeStyle = {
+                  backgroundColor: competency.color,
+                };
 
                 return (
                   <Card
                     key={competency.id}
-                    className={`card-base competency-card competency-${competency.color}`}
+                    className={`card-base competency-card ${
+                      !unlocked ? "competency-locked" : ""
+                    }`}
                     onClick={() => handleCompetencyClick(competency)}
+                    style={{
+                      cursor: unlocked ? "pointer" : "not-allowed",
+                      ...gradientStyle,
+                    }}
                   >
                     <Card.Body className="competency-card-body">
-                      <div className="competency-icon-wrapper">
-                        <IconComponent className="competency-icon" />
-                        {!completed && <Lock className="competency-lock" />}
-                      </div>
+                      {!unlocked && <Lock className="competency-lock" />}
+                      <img
+                        src={competency.image}
+                        alt={competency.name}
+                        className="competency-icon"
+                        onError={(e) => {
+                          // Fallback if image doesn't exist
+                          e.target.style.display = "none";
+                        }}
+                      />
 
                       <h5 className="competency-name">{competency.name}</h5>
 
@@ -326,22 +524,64 @@ const Dashboard = () => {
                         </div>
                       )}
 
-                      <div className={`badge-number competency-${competency.color}-badge`}>
+                      <div className="badge-number" style={badgeStyle}>
                         {competency.order}
                       </div>
                     </Card.Body>
                   </Card>
                 );
               })}
-
-            </div>
-
-            <div className="text-center mt-4">
-              <p className="sails-brand">SAILS</p>
-              <p className="sails-subtitle">Software</p>
             </div>
           </Card.Body>
         </Card>
+
+        {/* Band Assessment Section */}
+        {/* <Card className="card-base mb-4">
+          <Card.Body>
+            <h5 className="history-title mb-4">Band Assessment</h5>
+            
+            <div className="d-flex align-items-center justify-content-between p-4 border rounded" style={{ 
+              backgroundColor: "#f9f9f9",
+              transition: "background-color 0.2s"
+            }}>
+              <div className="flex-grow-1">
+                <h6 className="mb-1" style={{ fontWeight: 500, color: "#333" }}>
+                  Band {currentBand || "2A"} Assessment
+                </h6>
+                <p className="mb-0 text-muted" style={{ fontSize: "14px" }}>
+                  Complete all 5 categories with 25 questions each
+                </p>
+              </div>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (!canTakeAssessment() && assessmentStatus === "completed") {
+                    setToastMessage(`Assessment available in ${getDaysUntilNextAssessment()} days`);
+                    setShowToast(true);
+                    setTimeout(() => {
+                      setShowToast(false);
+                    }, 3000);
+                  } else {
+                    // Navigate to first competency if unlocked
+                    const firstCompetency = COMPETENCIES[0];
+                    if (isUnlocked(firstCompetency)) {
+                      navigate(`/assessment?category=0`, { state: questionsData });
+                    }
+                  }
+                }}
+                disabled={!canTakeAssessment() && assessmentStatus === "completed"}
+                style={{ 
+                  minWidth: "180px",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                {!canTakeAssessment() && assessmentStatus === "completed" 
+                  ? `Available in ${getDaysUntilNextAssessment()} days`
+                  : "Start Assessment"}
+              </Button>
+            </div>
+          </Card.Body>
+        </Card> */}
 
         {/* Assessment History Card */}
         <Card className="card-base history-card">
@@ -365,8 +605,9 @@ const Dashboard = () => {
                     <div className="text-end">
                       <div className="score">{assessment.overallScore}%</div>
                       <div
-                        className={`status ${assessment.passed ? "passed" : "failed"
-                          }`}
+                        className={`status ${
+                          assessment.passed ? "passed" : "failed"
+                        }`}
                       >
                         {assessment.passed ? "Passed" : "Failed"}
                       </div>

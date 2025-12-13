@@ -28,7 +28,7 @@ const Assessment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const questionsData = location.state || {};
-  console.log("questionsData",questionsData);
+  // console.log("questionsData",questionsData);
   const [searchParams] = useSearchParams();
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -49,10 +49,11 @@ const Assessment = () => {
 
     // Load assessment data
     const assessmentData = localStorage.getItem('assessmentData');
-    if (assessmentData) {
-      const data = JSON.parse(assessmentData);
-      setCurrentBand(data.currentBand || '2A');
-    }
+    console.log("assessmentDattaa",assessmentData)
+    // if (assessmentData) {
+    //   const data = JSON.parse(assessmentData);
+    //   setCurrentBand(data.currentBand || '2A');
+    // }
 
     // Check for category parameter
     const categoryParam = searchParams.get('category');
