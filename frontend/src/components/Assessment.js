@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import {
   Modal,
@@ -60,7 +60,9 @@ const ANSWER_OPTIONS = [
 const Assessment = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const questionsData = location.state || {};
+  const locationState = location.state || {};
+  const questionsData = locationState.useAPIData ? {} : locationState;
+  const apiData = locationState.useAPIData ? locationState : null;
   const [searchParams] = useSearchParams();
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -73,6 +75,7 @@ const Assessment = () => {
   const [submitError, setSubmitError] = useState(null);
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [categoryQuestions, setCategoryQuestions] = useState([]);
+  const initializedRef = useRef(false);
 
   // Check if category is completed and synced with API
   const isCategoryCompleted = useCallback((categoryIndex) => {
@@ -85,6 +88,14 @@ const Assessment = () => {
 
   // Load user and initial state
   useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    const categoryIndex = parseInt(categoryParam) || 0;
+    
+    // Prevent re-initialization if already initialized for this category
+    if (initializedRef.current === categoryIndex) {
+      return;
+    }
+
     const userData = localStorage.getItem("user");
     if (!userData) {
       navigate("/");
@@ -101,7 +112,6 @@ const Assessment = () => {
     }
 
     // Check for category parameter
-    const categoryParam = searchParams.get("category");
     if (categoryParam) {
       const catIndex = parseInt(categoryParam);
       if (catIndex >= 0 && catIndex < CATEGORIES.length) {
@@ -115,35 +125,63 @@ const Assessment = () => {
     }
 
     // Load questions for current category
-    const categoryIndex = parseInt(categoryParam) || 0;
     const categoryName = CATEGORIES[categoryIndex];
-    const questions = questionsData[categoryName] || [];
-
-    // If questions not in state, try to fetch them
-    if (questions.length === 0 && parsedUser) {
-      // Questions will be loaded from Dashboard, but we can also fetch here if needed
-      setCategoryQuestions([]);
+    
+    // Get fresh values from location state
+    const currentLocationState = location.state || {};
+    const currentApiData = currentLocationState.useAPIData ? currentLocationState : null;
+    const currentQuestionsData = currentLocationState.useAPIData ? {} : currentLocationState;
+    
+    // Check if we should use API data (for completed categories)
+    const shouldUseAPIData = currentApiData && currentApiData.useAPIData;
+    
+    if (shouldUseAPIData) {
+      // Use questions and answers from API
+      const apiQuestions = currentApiData.questions[currentApiData.categoryName] || [];
+      // Sort questions to ensure consistent order
+      const sortedQuestions = [...apiQuestions];
+      setCategoryQuestions(sortedQuestions);
+      
+      // Load answers from API data
+      if (currentApiData.answers) {
+        setAnswers(currentApiData.answers);
+      }
+      
+      // Enable review mode for API data
+      setIsReviewMode(true);
     } else {
-      setCategoryQuestions(questions);
-    }
+      // Use questions from state (for incomplete categories)
+      const questions = currentQuestionsData[categoryName] || [];
 
-    // Load saved progress for this category
-    const savedProgress = localStorage.getItem("assessmentProgress");
-    if (savedProgress) {
-      const progress = JSON.parse(savedProgress);
-      const savedCategoryIndex = progress.categoryIndex || 0;
+      // If questions not in state, try to fetch them
+      if (questions.length === 0 && parsedUser) {
+        // Questions will be loaded from Dashboard, but we can also fetch here if needed
+        setCategoryQuestions([]);
+      } else {
+        setCategoryQuestions(questions);
+      }
 
-      // Only load if we're on the same category
-      if (savedCategoryIndex === (parseInt(categoryParam) || 0)) {
-        setQuestionIndex(progress.questionIndex || 0);
-        setAnswers(progress.answers || {});
+      // Load saved progress for this category (only for incomplete categories)
+      const savedProgress = localStorage.getItem("assessmentProgress");
+      if (savedProgress) {
+        const progress = JSON.parse(savedProgress);
+        const savedCategoryIndex = progress.categoryIndex || 0;
+
+        // Only load if we're on the same category
+        if (savedCategoryIndex === categoryIndex) {
+          setQuestionIndex(progress.questionIndex || 0);
+          setAnswers(progress.answers || {});
+        }
       }
     }
-  }, [navigate, searchParams, questionsData, isCategoryCompleted]);
+    
+    // Mark as initialized for this category
+    initializedRef.current = categoryIndex;
+  }, [navigate, searchParams, location.state, isCategoryCompleted]);
 
-  // Immediate localStorage persistence
+  // Immediate localStorage persistence (only for non-review mode)
   useEffect(() => {
-    if (user && Object.keys(answers).length > 0) {
+    if (user && Object.keys(answers).length > 0 && !isReviewMode) {
       setIsSaving(true);
       const saveTimeout = setTimeout(() => {
         localStorage.setItem(
@@ -159,7 +197,7 @@ const Assessment = () => {
       }, 300);
       return () => clearTimeout(saveTimeout);
     }
-  }, [currentCategoryIndex, questionIndex, answers, user]);
+  }, [currentCategoryIndex, questionIndex, answers, user, isReviewMode]);
 
   const getQuestionKey = (catIndex, qIndex) => {
     return `category-${catIndex}-question-${qIndex}`;
@@ -555,13 +593,13 @@ const Assessment = () => {
             >
               <span>← Previous</span>
             </Button>
-            {isSaving && !isSubmitting && (
+            {isSaving && !isSubmitting && !isReviewMode && (
               <span className="saving-text">
                 <Spinner size="sm" animation="border" className="me-2" />
                 Saving...
               </span>
             )}
-            {isSubmitting && (
+            {isSubmitting && !isReviewMode && (
               <span className="saving-text">
                 <Spinner size="sm" animation="border" className="me-2" />
                 Submitting...

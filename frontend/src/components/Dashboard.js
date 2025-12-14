@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Card, Button, ProgressBar } from "react-bootstrap";
+import { Container, Card, ProgressBar } from "react-bootstrap";
 import { ArrowLeft, CheckCircle2, Clock, LogOut, Lock } from "lucide-react";
 import axios from "axios";
 import "../styles.css";
@@ -117,7 +117,6 @@ const Dashboard = () => {
             grouped[compId] = questions;
           }
         });
-        console.log("grouped",grouped);
 
         setQuestionsData(grouped);
       })
@@ -144,23 +143,7 @@ const Dashboard = () => {
       });
   };
 
-  const getCompetencyData = (category) => {
-    axios.get(`http://localhost:8000/assessment/${category}/SS005`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      }
-    ).then((response) => {
-      console.log(response.data);
-    }).catch((error) => {
-      console.error("There was an error fetching the competency data!", error);
-    });
-  }
-
   const getHistory = () => {
-    // const employeeId = user?.id || user?.employeeId || user?.employee_id || 'SS005';
     axios
       .get(`http://localhost:8000/assessment/history/SS005`, {
         headers: {
@@ -188,14 +171,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     getBandData();
+    getHistory();
   }, []);
-
-  useEffect(() => {
-    // Load history after user is loaded
-    if (user) {
-      getHistory();
-    }
-  }, [user]);
 
   useEffect(() => {
     // Load user data from localStorage
@@ -205,9 +182,6 @@ const Dashboard = () => {
       return;
     }
     setUser(JSON.parse(userData));
-
-    // Load assessment data from localStorage
-    const assessmentData = localStorage.getItem("assessmentData");
 
     // Check if there's an in-progress assessment
     const progress = localStorage.getItem("assessmentProgress");
@@ -277,8 +251,7 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
-  const handleCompetencyClick = (competency) => {
-    getCompetencyData(competency.id);
+  const handleCompetencyClick = async (competency) => {
     // Check if assessment can be taken (not on cooldown)
     if (!canTakeAssessment() && assessmentStatus === "completed") {
       setToastMessage(
@@ -298,7 +271,69 @@ const Dashboard = () => {
 
     // Set the category index based on competency order (0-indexed)
     const categoryIndex = competency.order - 1;
-    navigate(`/assessment?category=${categoryIndex}`, { state: questionsData }); // Replaced history.push with navigate
+    
+    // Check if this category is completed
+    const isCompleted = isCategoryCompletedAndSynced(categoryIndex);
+    
+    if (isCompleted) {
+      // For completed categories, fetch questions and answers from API
+      try {
+        const employeeId = user?.id || user?.employeeId || user?.employee_id || 'SS005';
+        const response = await axios.get(
+          `http://localhost:8000/assessment/${competency.id}/${employeeId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            }
+          }
+        );
+
+        if (response.data && response.data.answers) {
+          // Extract questions and answers from API response
+          const apiAnswers = response.data.answers;
+          
+          // Extract unique questions and sort them alphabetically for consistent order
+          const uniqueQuestions = [...new Set(apiAnswers.map(item => item.question))];
+          
+          // Create a map of question to answer for quick lookup
+          const questionToAnswer = {};
+          apiAnswers.forEach((apiAnswer) => {
+            questionToAnswer[apiAnswer.question] = apiAnswer.answer_value;
+          });
+          
+          // Map answers by question index (matching sorted question order)
+          const answersFromAPI = {};
+          uniqueQuestions.forEach((question, index) => {
+            answersFromAPI[`category-${categoryIndex}-question-${index}`] = {
+              response: questionToAnswer[question],
+              timestamp: apiAnswers.find(a => a.question === question)?.updated_at,
+              fromAPI: true
+            };
+          });
+
+          // Navigate with API data
+          navigate(`/assessment?category=${categoryIndex}`, {
+            state: {
+              useAPIData: true,
+              questions: { [competency.id]: uniqueQuestions },
+              answers: answersFromAPI,
+              categoryName: competency.id
+            }
+          });
+        } else {
+          // Fallback to state data if API fails
+          navigate(`/assessment?category=${categoryIndex}`, { state: questionsData });
+        }
+      } catch (error) {
+        console.error('Error fetching completed assessment data:', error);
+        // Fallback to state data if API fails
+        navigate(`/assessment?category=${categoryIndex}`, { state: questionsData });
+      }
+    } else {
+      // For incomplete categories, use state data
+      navigate(`/assessment?category=${categoryIndex}`, { state: questionsData });
+    }
   };
 
   const handleLogout = () => {
@@ -577,54 +612,6 @@ const Dashboard = () => {
             </div>
           </Card.Body>
         </Card>
-
-        {/* Band Assessment Section */}
-        {/* <Card className="card-base mb-4">
-          <Card.Body>
-            <h5 className="history-title mb-4">Band Assessment</h5>
-            
-            <div className="d-flex align-items-center justify-content-between p-4 border rounded" style={{ 
-              backgroundColor: "#f9f9f9",
-              transition: "background-color 0.2s"
-            }}>
-              <div className="flex-grow-1">
-                <h6 className="mb-1" style={{ fontWeight: 500, color: "#333" }}>
-                  Band {currentBand || "2A"} Assessment
-                </h6>
-                <p className="mb-0 text-muted" style={{ fontSize: "14px" }}>
-                  Complete all 5 categories with 25 questions each
-                </p>
-              </div>
-              <Button
-                variant="primary"
-                onClick={() => {
-                  if (!canTakeAssessment() && assessmentStatus === "completed") {
-                    setToastMessage(`Assessment available in ${getDaysUntilNextAssessment()} days`);
-                    setShowToast(true);
-                    setTimeout(() => {
-                      setShowToast(false);
-                    }, 3000);
-                  } else {
-                    // Navigate to first competency if unlocked
-                    const firstCompetency = COMPETENCIES[0];
-                    if (isUnlocked(firstCompetency)) {
-                      navigate(`/assessment?category=0`, { state: questionsData });
-                    }
-                  }
-                }}
-                disabled={!canTakeAssessment() && assessmentStatus === "completed"}
-                style={{ 
-                  minWidth: "180px",
-                  whiteSpace: "nowrap"
-                }}
-              >
-                {!canTakeAssessment() && assessmentStatus === "completed" 
-                  ? `Available in ${getDaysUntilNextAssessment()} days`
-                  : "Start Assessment"}
-              </Button>
-            </div>
-          </Card.Body>
-        </Card> */}
 
         {/* Assessment History Card */}
         <Card className="card-base history-card">
