@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import {
   Modal,
   Form,
@@ -57,19 +56,25 @@ const ANSWER_OPTIONS = [
   { value: "1", label: "Not yet", description: "I haven't tried this before" },
 ];
 
-const Assessment = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const locationState = location.state || {};
-  const questionsData = locationState.useAPIData ? {} : locationState;
-  const apiData = locationState.useAPIData ? locationState : null;
-  const [searchParams] = useSearchParams();
-  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
+const Assessment = ({ 
+  show, 
+  onHide, 
+  categoryIndex: initialCategoryIndex = 0,
+  questionsData: propsQuestionsData = {},
+  apiData: propsApiData = null,
+  currentBand: propsCurrentBand = "",
+  employeeId: propsEmployeeId = "",
+  onComplete
+}) => {
+  // Alias for easier reference
+  const questionsData = propsQuestionsData;
+  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(initialCategoryIndex);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showCongratulations, setShowCongratulations] = useState(false);
   const [user, setUser] = useState(null);
-  const [currentBand, setCurrentBand] = useState("2B");
+  const [currentBand, setCurrentBand] = useState("");
+  const [employeeId, setEmployeeId] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -88,8 +93,9 @@ const Assessment = () => {
 
   // Load user and initial state
   useEffect(() => {
-    const categoryParam = searchParams.get("category");
-    const categoryIndex = parseInt(categoryParam) || 0;
+    if (!show) return; // Don't initialize if modal is not shown
+    
+    const categoryIndex = initialCategoryIndex;
     
     // Prevent re-initialization if already initialized for this category
     if (initializedRef.current === categoryIndex) {
@@ -98,39 +104,45 @@ const Assessment = () => {
 
     const userData = localStorage.getItem("user");
     if (!userData) {
-      navigate("/");
+      onHide();
       return;
     }
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
 
-    // Load band from localStorage or API
-    const assessmentData = localStorage.getItem("assessmentData");
-    if (assessmentData) {
-      const data = JSON.parse(assessmentData);
-      setCurrentBand(data.currentBand || "2A");
+    // Get currentBand and employeeId from props
+    if (propsCurrentBand) {
+      setCurrentBand(propsCurrentBand);
+    } else {
+      // Fallback to localStorage if not in props
+      const assessmentData = localStorage.getItem("assessmentData");
+      if (assessmentData) {
+        const data = JSON.parse(assessmentData);
+        setCurrentBand(data.currentBand);
+      }
     }
 
-    // Check for category parameter
-    if (categoryParam) {
-      const catIndex = parseInt(categoryParam);
-      if (catIndex >= 0 && catIndex < CATEGORIES.length) {
-        setCurrentCategoryIndex(catIndex);
+    // Get employeeId from props
+    if (propsEmployeeId) {
+      setEmployeeId(propsEmployeeId);
+    }
 
-        // Check if this category is already completed (review mode)
-        if (isCategoryCompleted(catIndex)) {
-          setIsReviewMode(true);
-        }
+    // Set category index
+    if (categoryIndex >= 0 && categoryIndex < CATEGORIES.length) {
+      setCurrentCategoryIndex(categoryIndex);
+
+      // Check if this category is already completed (review mode)
+      if (isCategoryCompleted(categoryIndex)) {
+        setIsReviewMode(true);
       }
     }
 
     // Load questions for current category
     const categoryName = CATEGORIES[categoryIndex];
     
-    // Get fresh values from location state
-    const currentLocationState = location.state || {};
-    const currentApiData = currentLocationState.useAPIData ? currentLocationState : null;
-    const currentQuestionsData = currentLocationState.useAPIData ? {} : currentLocationState;
+    // Get values from props
+    const currentApiData = propsApiData;
+    const currentQuestionsData = propsQuestionsData;
     
     // Check if we should use API data (for completed categories)
     const shouldUseAPIData = currentApiData && currentApiData.useAPIData;
@@ -151,15 +163,27 @@ const Assessment = () => {
       setIsReviewMode(true);
     } else {
       // Use questions from state (for incomplete categories)
-      const questions = currentQuestionsData[categoryName] || [];
+      let questions = currentQuestionsData[categoryName] || [];
 
-      // If questions not in state, try to fetch them
-      if (questions.length === 0 && parsedUser) {
-        // Questions will be loaded from Dashboard, but we can also fetch here if needed
-        setCategoryQuestions([]);
+      // If questions not in state, try to get from localStorage
+      if (questions.length === 0) {
+        const storedQuestions = localStorage.getItem("assessmentQuestions");
+        if (storedQuestions) {
+          try {
+            const stored = JSON.parse(storedQuestions);
+            if (stored.questions && stored.questions[categoryName]) {
+              questions = [...stored.questions[categoryName]];
+            }
+          } catch (e) {
+            console.error("Error parsing stored questions:", e);
+          }
+        }
       } else {
-        setCategoryQuestions(questions);
+        // Ensure questions are sorted for consistency
+        questions = [...questions];
       }
+
+      setCategoryQuestions(questions);
 
       // Load saved progress for this category (only for incomplete categories)
       const savedProgress = localStorage.getItem("assessmentProgress");
@@ -177,7 +201,7 @@ const Assessment = () => {
     
     // Mark as initialized for this category
     initializedRef.current = categoryIndex;
-  }, [navigate, searchParams, location.state, isCategoryCompleted]);
+  }, [show, initialCategoryIndex, propsQuestionsData, propsApiData, propsCurrentBand, propsEmployeeId, isCategoryCompleted, onHide]);
 
   // Immediate localStorage persistence (only for non-review mode)
   useEffect(() => {
@@ -254,8 +278,6 @@ const Assessment = () => {
 
     try {
       const categoryName = CATEGORIES[currentCategoryIndex];
-      const employeeId =
-        user.id || user.employeeId || user.employee_id || "SS005";
       const categoryAnswers = [];
 
       // Prepare all answers in the required format
@@ -381,7 +403,10 @@ const Assessment = () => {
   };
 
   const handleBackToDashboard = () => {
-    navigate("/dashboard");
+    onHide();
+    if (onComplete) {
+      onComplete();
+    }
   };
 
   const handlePrevious = () => {
@@ -394,8 +419,11 @@ const Assessment = () => {
     setShowCongratulations(false);
 
     if (isReviewMode) {
-      // Already submitted, just navigate back
-      navigate("/dashboard");
+      // Already submitted, just close modal
+      onHide();
+      if (onComplete) {
+        onComplete();
+      }
       return;
     }
 
@@ -407,10 +435,11 @@ const Assessment = () => {
         "justCompleted",
         `You've successfully completed the ${CATEGORIES[currentCategoryIndex]} assessment`
       );
-      // Navigate back to dashboard after a short delay
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1500);
+      // Close modal and refresh dashboard
+      onHide();
+      if (onComplete) {
+        onComplete();
+      }
     } else {
       // Error already set in submitCategoryToAPI
       // User can retry
@@ -423,10 +452,13 @@ const Assessment = () => {
   };
 
   const handleClose = () => {
-    navigate("/dashboard");
+    onHide();
+    if (onComplete && isReviewMode) {
+      onComplete();
+    }
   };
 
-  if (!user) {
+  if (!show || !user) {
     return null;
   }
 
@@ -441,7 +473,6 @@ const Assessment = () => {
     const questions = questionsData[categoryName] || categoryQuestions;
 
     if (Array.isArray(questions) && questions.length > 0) {
-      // Handle both array of strings and array of objects
       const question = questions[questionIndex];
       if (typeof question === "string") {
         return question;

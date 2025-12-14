@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Card, ProgressBar } from "react-bootstrap";
 import { ArrowLeft, CheckCircle2, Clock, LogOut, Lock } from "lucide-react";
 import axios from "axios";
+import Assessment from "./Assessment";
 import "../styles.css";
 import "./Dashboard.css";
 
@@ -71,6 +72,7 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [userName, setUserName] = useState("");
   const [currentBand, setCurrentBand] = useState("");
+  const [employeeId, setEmployeeId] = useState("");
   const [assessmentStatus, setAssessmentStatus] = useState("Not Taken");
   const [completedDate, setCompletedDate] = useState(null);
   const [assessmentHistory, setAssessmentHistory] = useState([]);
@@ -78,8 +80,27 @@ const Dashboard = () => {
   const [competencyProgress, setCompetencyProgress] = useState({});
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [showAssessmentModal, setShowAssessmentModal] = useState(false);
+  const [assessmentModalData, setAssessmentModalData] = useState(null);
 
   const getQuestions = (band) => {
+    // Check if we have stored questions for this band in localStorage
+    const storedQuestions = localStorage.getItem("assessmentQuestions");
+    if (storedQuestions) {
+      try {
+        const stored = JSON.parse(storedQuestions);
+        // Use stored questions if they're for the same band
+        if (stored.band === band && stored.questions) {
+          setQuestionsData(stored.questions);
+          return; // Don't fetch new questions, use stored ones
+        }
+      } catch (e) {
+        // If parsing fails, continue to fetch new questions
+        console.error("Error parsing stored questions:", e);
+      }
+    }
+
+    // Fetch new questions from API
     axios
       .get(`http://localhost:8000/bands/band${band}/random-questions`, {
         headers: {
@@ -119,6 +140,13 @@ const Dashboard = () => {
         });
 
         setQuestionsData(grouped);
+        
+        // Store questions in localStorage for consistency (so same questions are used if user closes and reopens)
+        localStorage.setItem("assessmentQuestions", JSON.stringify({
+          band: band,
+          questions: grouped,
+          timestamp: new Date().toISOString()
+        }));
       })
       .catch((error) => {
         console.error("There was an error fetching the questions!", error);
@@ -137,6 +165,7 @@ const Dashboard = () => {
         getQuestions(response.data.Agreed_Band);
         setUserName(response.data.Employee_Name);
         setCurrentBand(response.data.Agreed_Band);
+        setEmployeeId(response.data.Employee_Number);
       })
       .catch((error) => {
         console.error("There was an error fetching the band data!", error);
@@ -278,7 +307,6 @@ const Dashboard = () => {
     if (isCompleted) {
       // For completed categories, fetch questions and answers from API
       try {
-        const employeeId = user?.id || user?.employeeId || user?.employee_id || 'SS005';
         const response = await axios.get(
           `http://localhost:8000/assessment/${competency.id}/${employeeId}`,
           {
@@ -312,27 +340,47 @@ const Dashboard = () => {
             };
           });
 
-          // Navigate with API data
-          navigate(`/assessment?category=${categoryIndex}`, {
-            state: {
-              useAPIData: true,
-              questions: { [competency.id]: uniqueQuestions },
-              answers: answersFromAPI,
-              categoryName: competency.id
-            }
+          // Open modal with API data
+          setAssessmentModalData({
+            categoryIndex: categoryIndex,
+            useAPIData: true,
+            questions: { [competency.id]: uniqueQuestions },
+            answers: answersFromAPI,
+            categoryName: competency.id,
+            employeeId: employeeId,
+            currentBand: currentBand
           });
+          setShowAssessmentModal(true);
         } else {
           // Fallback to state data if API fails
-          navigate(`/assessment?category=${categoryIndex}`, { state: questionsData });
+          setAssessmentModalData({
+            categoryIndex: categoryIndex,
+            questionsData: questionsData,
+            employeeId: employeeId,
+            currentBand: currentBand
+          });
+          setShowAssessmentModal(true);
         }
       } catch (error) {
         console.error('Error fetching completed assessment data:', error);
         // Fallback to state data if API fails
-        navigate(`/assessment?category=${categoryIndex}`, { state: questionsData });
+        setAssessmentModalData({
+          categoryIndex: categoryIndex,
+          questionsData: questionsData,
+          employeeId: employeeId,
+          currentBand: currentBand
+        });
+        setShowAssessmentModal(true);
       }
     } else {
       // For incomplete categories, use state data
-      navigate(`/assessment?category=${categoryIndex}`, { state: questionsData });
+      setAssessmentModalData({
+        categoryIndex: categoryIndex,
+        questionsData: questionsData,
+        employeeId: employeeId,
+        currentBand: currentBand
+      });
+      setShowAssessmentModal(true);
     }
   };
 
@@ -672,6 +720,45 @@ const Dashboard = () => {
             <p className="mb-0">{toastMessage}</p>
           </div>
         </div>
+      )}
+
+      {/* Assessment Modal */}
+      {assessmentModalData && (
+        <Assessment
+          show={showAssessmentModal}
+          onHide={() => {
+            setShowAssessmentModal(false);
+            setAssessmentModalData(null);
+          }}
+          categoryIndex={assessmentModalData.categoryIndex}
+          questionsData={assessmentModalData.questionsData || {}}
+          apiData={assessmentModalData.useAPIData ? assessmentModalData : null}
+          currentBand={assessmentModalData.currentBand}
+          employeeId={assessmentModalData.employeeId}
+          onComplete={() => {
+            // Refresh dashboard data after completion
+            getBandData();
+            getHistory();
+            // Reload progress
+            const progress = localStorage.getItem("assessmentProgress");
+            if (progress) {
+              const progressData = JSON.parse(progress);
+              const answers = progressData.answers || {};
+              let progressMap = {};
+              COMPETENCIES.forEach((comp, index) => {
+                let answered = 0;
+                for (let q = 0; q < comp.questions; q++) {
+                  const key = `category-${index}-question-${q}`;
+                  if (answers[key] && answers[key].response) {
+                    answered++;
+                  }
+                }
+                progressMap[comp.id] = answered;
+              });
+              setCompetencyProgress(progressMap);
+            }
+          }}
+        />
       )}
     </div>
   );
