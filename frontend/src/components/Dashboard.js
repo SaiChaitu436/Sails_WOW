@@ -79,7 +79,7 @@ const Dashboard = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  const getQuestions = (band, category) => {
+  const getQuestions = (band) => {
     axios
       .get(`http://localhost:8000/bands/band${band}/random-questions`, {
         headers: {
@@ -88,7 +88,6 @@ const Dashboard = () => {
         },
       })
       .then((response) => {
-        console.log(response.data);
         const data = response.data.questions;
 
         // Map raw category text to competency IDs
@@ -116,7 +115,6 @@ const Dashboard = () => {
           return acc;
         }, {});
 
-        console.log(grouped);
         setQuestionsData(grouped);
       })
       .catch((error) => {
@@ -142,19 +140,58 @@ const Dashboard = () => {
       });
   };
 
+  const getCompetencyData = (category) => {
+    axios.get(`http://localhost:8000/assessment/${category}/SS005`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    ).then((response) => {
+      console.log(response.data);
+    }).catch((error) => {
+      console.error("There was an error fetching the competency data!", error);
+    });
+  }
+
+  const getHistory = () => {
+    // const employeeId = user?.id || user?.employeeId || user?.employee_id || 'SS005';
+    axios
+      .get(`http://localhost:8000/assessment/history/SS005`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        if (response.data && response.data.history) {
+          // Transform the API response to match the expected format
+          const formattedHistory = response.data.history.map((item) => ({
+            band: item.band,
+            overallScore: item.overallScore,
+            passed: item.passed,
+            completedDate: item.completedDate,
+            categoryScores: item.categoryScores
+          }));
+          setAssessmentHistory(formattedHistory);
+        }
+      })
+      .catch((error) => {
+        console.error("There was an error fetching assessment history!", error);
+      });
+  }
+
   useEffect(() => {
     getBandData();
   }, []);
 
-  // Watch for completion of all competencies
-  // useEffect(() => {
-  //   if (Object.keys(competencyProgress).length === 0) return;
-
-  //   const allCompleted = COMPETENCIES.every((comp) => {
-  //     const compProgress = competencyProgress[comp.id] || 0;
-  //     return compProgress === 25;
-  //   });
-  // }, [competencyProgress, assessmentStatus, currentBand]);
+  useEffect(() => {
+    // Load history after user is loaded
+    if (user) {
+      getHistory();
+    }
+  }, [user]);
 
   useEffect(() => {
     // Load user data from localStorage
@@ -167,18 +204,9 @@ const Dashboard = () => {
 
     // Load assessment data from localStorage
     const assessmentData = localStorage.getItem("assessmentData");
-    console.log("assesmentData",assessmentData)
-    // if (assessmentData) {
-    //   const data = JSON.parse(assessmentData);
-    //   setAssessmentStatus(data.status || "Not Taken");
-      // if (data.completedDate) {
-      //   setCompletedDate(new Date(data.completedDate));
-      // }
-    // }
 
     // Check if there's an in-progress assessment
     const progress = localStorage.getItem("assessmentProgress");
-    console.log("progress",progress)
     let progressMap = {};
     if (progress) {
       setAssessmentStatus("In Progress");
@@ -233,44 +261,6 @@ const Dashboard = () => {
 
     setCompetencyProgress(progressMap);
 
-    // Check if all competencies are completed (full assessment completed)
-    // const allCompleted = COMPETENCIES.every((comp) => {
-    //   const compProgress = progressMap[comp.id] || 0;
-    //   return compProgress === 25;
-    // });
-
-    // if (allCompleted && COMPETENCIES.length > 0) {
-    //   // Check if we have a stored completion date
-    //   const storedCompletedDate = localStorage.getItem(
-    //     "assessmentCompletedDate"
-    //   );
-    //   if (storedCompletedDate) {
-    //     setCompletedDate(new Date(storedCompletedDate));
-    //     setAssessmentStatus("completed");
-    //   } else {
-    //     // Mark as completed and store date
-    //     const now = new Date();
-    //     setCompletedDate(now);
-    //     setAssessmentStatus("completed");
-    //     localStorage.setItem("assessmentCompletedDate", now.toISOString());
-    //     const currentBandData = currentBand || "2A";
-    //     localStorage.setItem(
-    //       "assessmentData",
-    //       JSON.stringify({
-    //         currentBand: currentBandData,
-    //         status: "completed",
-    //         completedDate: now.toISOString(),
-    //       })
-    //     );
-    //   }
-    // }
-
-    // Load assessment history
-    // const history = localStorage.getItem("assessmentHistory");
-    // if (history) {
-    //   setAssessmentHistory(JSON.parse(history));
-    // }
-
     // Check for toast message
     const justCompleted = sessionStorage.getItem("justCompleted");
     if (justCompleted) {
@@ -284,6 +274,7 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleCompetencyClick = (competency) => {
+    getCompetencyData(competency.id);
     // Check if assessment can be taken (not on cooldown)
     if (!canTakeAssessment() && assessmentStatus === "completed") {
       setToastMessage(
