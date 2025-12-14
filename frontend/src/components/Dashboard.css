@@ -108,7 +108,6 @@
 }
 
 .competency-card-body {
-  padding: 24px;
   min-height: 200px;
   display: flex;
   flex-direction: column;
@@ -118,30 +117,37 @@
   position: relative;
 }
 
-.competency-icon-wrapper {
-  position: relative;
-  margin-bottom: 16px;
-}
-
 .competency-icon {
-  font-size: 48px !important;
+  font-size: 18px !important;
+  width: 120px;
+  height: 120px;
   color: white;
-  opacity: 0.9;
 }
 
-.competency-lock {
+/* .competency-lock {
   position: absolute;
-  bottom: -8px;
-  right: -8px;
-  font-size: 20px !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
   color: white;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 50%;
-  padding: 4px;
+  z-index: 10;
+  opacity: 0.95;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+} */
+
+.competency-locked {
+  opacity: 0.6;
+  filter: grayscale(0.5);
+}
+
+.competency-locked:hover {
+  transform: none !important;
 }
 
 .competency-name {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   color: white;
   margin-bottom: 8px;
@@ -171,21 +177,6 @@
 .competency-progress-bar .progress-bar {
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 2px;
-}
-
-.sails-brand {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--primary-blue);
-  margin-bottom: 4px;
-  font-family: 'Poppins', sans-serif;
-}
-
-.sails-subtitle {
-  font-size: 14px;
-  color: var(--text-medium);
-  margin-bottom: 0;
-  font-family: 'Poppins', sans-serif;
 }
 
 .history-title {

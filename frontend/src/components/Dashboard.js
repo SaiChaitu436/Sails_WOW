@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Container, Card, Button, ProgressBar } from "react-bootstrap";
-import {
-  ArrowBack,
-  ArrowForward,
-  AccessTime,
-  ChatBubbleOutline,
-  Refresh,
-  Group,
-  // PersonCheck,
-  Psychology,
-  Lock,
-} from "@mui/icons-material";
-import axios from 'axios';
+import { ArrowLeft, CheckCircle2, Clock, LogOut, Lock } from "lucide-react";
+import axios from "axios";
 import "../styles.css";
 import "./Dashboard.css";
 
@@ -20,44 +10,61 @@ const COMPETENCIES = [
   {
     id: "Communication",
     name: "COMMUNICATION",
-    color: "blue",
-    icon: ChatBubbleOutline,
+    color: "#0001fc",
+    image: "/images/communication.png",
     questions: 25,
     order: 1,
   },
   {
     id: "Adaptability & Learning Agility",
     name: "ADAPTABILITY & LEARNING AGILITY",
-    color: "orange",
-    icon: Refresh,
+    color: "#d87e1d",
+    image: "/images/adaptability.png",
     questions: 25,
     order: 2,
   },
   {
     id: "Teamwork & Collaboration",
     name: "TEAMWORK & COLLABORATION",
-    color: "green",
-    icon: Group,
+    color: "#41b64d",
+    image: "/images/teamwork.png",
     questions: 25,
     order: 3,
   },
   {
     id: "Accountability & Ownership",
     name: "ACCOUNTABILITY & OWNERSHIP",
-    color: "brown",
-    icon: Group,
+    color: "#880a0d",
+    image: "/images/accountability.png",
     questions: 25,
     order: 4,
   },
   {
     id: "Problem Solving & Critical Thinking",
     name: "PROBLEM SOLVING & CRITICAL THINKING",
-    color: "purple",
-    icon: Psychology,
+    color: "#9338c3",
+    image: "/images/problem-solving.png",
     questions: 25,
     order: 5,
   },
 ];
+
+const createGradient = (hexColor) => {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+
+  // Create darker version for gradient
+  const darkerR = Math.max(0, r - 30);
+  const darkerG = Math.max(0, g - 30);
+  const darkerB = Math.max(0, b - 30);
+
+  const darkerHex = `#${darkerR.toString(16).padStart(2, "0")}${darkerG
+    .toString(16)
+    .padStart(2, "0")}${darkerB.toString(16).padStart(2, "0")}`;
+
+  return `linear-gradient(135deg, ${hexColor} 0%, ${darkerHex} 100%)`;
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -65,71 +72,153 @@ const Dashboard = () => {
   const [userName, setUserName] = useState("");
   const [currentBand, setCurrentBand] = useState("");
   const [assessmentStatus, setAssessmentStatus] = useState("Not Taken");
+  const [completedDate, setCompletedDate] = useState(null);
   const [assessmentHistory, setAssessmentHistory] = useState([]);
   const [questionsData, setQuestionsData] = useState({});
   const [competencyProgress, setCompetencyProgress] = useState({});
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [expandedHistory, setExpandedHistory] = useState({});
 
-  const getQuestions = (band) => {
-    axios.get(`http://localhost:8000/bands/band${band}/random-questions`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      }
-    }).then((response) => {
-      console.log(response.data);
-      const data = response.data.questions;
+  const getQuestions = (band, category) => {
+    // Ensure band format is correct (add 'band' prefix if not present)
+    const bandName = band.startsWith('band') ? band : `band${band}`;
+    
+    axios
+      .get(`http://localhost:8000/bands/${bandName}/random-questions`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        const data = response.data.questions;
 
-      // Map raw category text to competency IDs
-      const categoryToCompetency = {
-        "Self evaluation Communication": "Communication",
-        "Self evaluation Adaptability & Learning Agility": "Adaptability & Learning Agility",
-        "Self-evaluation Teamwork & Collaboration": "Teamwork & Collaboration",
-        "Self evaluation Accountability & Ownership": "Accountability & Ownership",
-        "Self evaluation Problem Solving & Critical Thinking": "Problem Solving & Critical Thinking",
-      };
+        // Map raw category text to competency IDs
+        const categoryToCompetency = {
+          "Self evaluation Communication": "Communication",
+          "Self evalauation Adaptability & Learning Agility":
+            "Adaptability & Learning Agility",
+          "Self evaluation Teamwork & Collaboration":
+            "Teamwork & Collaboration",
+          "Self evalauation Accountability & Ownership":
+            "Accountability & Ownership",
+          "Self evaluation Problem Solving & Critical Thinking":
+            "Problem Solving & Critical Thinking",
+        };
 
-      const grouped = data.reduce((acc, item) => {
-        // Convert category name → correct competency id
-        const compId = categoryToCompetency[item.category];
+        const grouped = data.reduce((acc, item) => {
+          // Convert category name → correct competency id
+          const compId = categoryToCompetency[item.category];
 
-        if (!compId) return acc; // skip if no match
+          if (!compId) return acc; // skip if no match
 
-        if (!acc[compId]) acc[compId] = [];
-        acc[compId].push(item.question);
+          if (!acc[compId]) acc[compId] = [];
+          acc[compId].push(item.question);
 
-        return acc;
-      }, {});
+          return acc;
+        }, {});
 
-      console.log(grouped);
-      setQuestionsData(grouped);
-
-
-    }).catch((error) => {
-      console.error('There was an error fetching the questions!', error);
-    });
-  }
+        console.log(grouped);
+        setQuestionsData(grouped);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the questions!", error);
+      });
+  };
 
   const getBandData = () => {
-    axios.get('http://localhost:8000/employeeData/SS003', {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      }
-    }).then((response) => {
-      console.log(response.data);
-      getQuestions(response.data.Agreed_Band);
-      setUserName(response.data.Employee_Name);
-      setCurrentBand(response.data.Agreed_Band);
-    }).catch((error) => {
-      console.error('There was an error fetching the band data!', error);
-    });
-  }
+    const userData = localStorage.getItem("user");
+    if (!userData) return;
+    
+    const parsedUser = JSON.parse(userData);
+    const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
+    
+    axios
+      .get(`http://localhost:8000/employeeData/${employeeId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        const band = response.data.Agreed_Band || response.data.agreed_band;
+        getQuestions(band);
+        setUserName(response.data.Employee_Name || response.data.employee_name);
+        setCurrentBand(band);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the band data!", error);
+      });
+  };
+
+  const getAssessmentHistory = () => {
+    const userData = localStorage.getItem("user");
+    if (!userData) return;
+    
+    const parsedUser = JSON.parse(userData);
+    const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
+    
+    axios
+      .get(`http://localhost:8000/assessment/history/${employeeId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        if (response.data && response.data.history) {
+          setAssessmentHistory(response.data.history);
+          
+          // Update assessment status based on history
+          const currentBandHistory = response.data.history.find(h => h.band === currentBand);
+          if (currentBandHistory) {
+            if (currentBandHistory.status === "Completed") {
+              setAssessmentStatus("completed");
+              if (currentBandHistory.completed_at) {
+                setCompletedDate(new Date(currentBandHistory.completed_at));
+              }
+            } else {
+              setAssessmentStatus("In Progress");
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("There was an error fetching assessment history!", error);
+      });
+  };
 
   useEffect(() => {
     getBandData();
+    // Also load history on initial load
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      // Call history API after a short delay to ensure user is set
+      setTimeout(() => {
+        getAssessmentHistory();
+      }, 100);
+    }
   }, []);
+
+  useEffect(() => {
+    if (user && currentBand) {
+      getAssessmentHistory();
+    }
+  }, [user, currentBand]);
+
+  // Watch for completion of all competencies
+  // useEffect(() => {
+  //   if (Object.keys(competencyProgress).length === 0) return;
+
+  //   const allCompleted = COMPETENCIES.every((comp) => {
+  //     const compProgress = competencyProgress[comp.id] || 0;
+  //     return compProgress === 25;
+  //   });
+  // }, [competencyProgress, assessmentStatus, currentBand]);
 
   useEffect(() => {
     // Load user data from localStorage
@@ -142,20 +231,24 @@ const Dashboard = () => {
 
     // Load assessment data from localStorage
     const assessmentData = localStorage.getItem("assessmentData");
-    if (assessmentData) {
-      const data = JSON.parse(assessmentData);
-      setCurrentBand(data.currentBand || "2A");
-      setAssessmentStatus(data.status || "Not Taken");
-    }
+    console.log("assesmentData",assessmentData)
+    // if (assessmentData) {
+    //   const data = JSON.parse(assessmentData);
+    //   setAssessmentStatus(data.status || "Not Taken");
+      // if (data.completedDate) {
+      //   setCompletedDate(new Date(data.completedDate));
+      // }
+    // }
 
     // Check if there's an in-progress assessment
     const progress = localStorage.getItem("assessmentProgress");
+    console.log("progress",progress)
+    let progressMap = {};
     if (progress) {
       setAssessmentStatus("In Progress");
       // Calculate competency progress
       const progressData = JSON.parse(progress);
       const answers = progressData.answers || {};
-      const progressMap = {};
 
       COMPETENCIES.forEach((comp, index) => {
         let answered = 0;
@@ -167,29 +260,80 @@ const Dashboard = () => {
         }
         progressMap[comp.id] = answered;
       });
-      setCompetencyProgress(progressMap);
     }
 
-    // Load completed competencies
+    // Load completed categories (API-synced only)
+    const completedCategories = localStorage.getItem("completedCategories");
+    if (completedCategories) {
+      const completedMap = JSON.parse(completedCategories);
+      // Convert category-{index} keys to competency IDs
+      COMPETENCIES.forEach((comp, index) => {
+        const key = `category-${index}`;
+        const categoryData = completedMap[key];
+        // Only count as progress if API synced
+        if (categoryData && categoryData.apiSynced) {
+          progressMap[comp.id] = categoryData.questionsCount || 25;
+        }
+      });
+    }
+
+    // Also check legacy completedCompetencies for backward compatibility
     const completed = localStorage.getItem("completedCompetencies");
     if (completed) {
       const completedMap = JSON.parse(completed);
-      // Convert category-{index} keys to competency IDs
-      const progressMap = {};
       COMPETENCIES.forEach((comp, index) => {
         const key = `category-${index}`;
-        if (completedMap[key]) {
-          progressMap[comp.id] = completedMap[key];
+        // Only use if not already set from completedCategories
+        if (!progressMap[comp.id] && completedMap[key]) {
+          // Legacy data - check if we can verify API sync
+          const categoryKey = `category-${index}`;
+          const categoryData = JSON.parse(localStorage.getItem("completedCategories") || "{}")[categoryKey];
+          if (categoryData?.apiSynced) {
+            progressMap[comp.id] = completedMap[key];
+          }
         }
       });
-      setCompetencyProgress((prev) => ({ ...prev, ...progressMap }));
     }
 
+    setCompetencyProgress(progressMap);
+
+    // Check if all competencies are completed (full assessment completed)
+    // const allCompleted = COMPETENCIES.every((comp) => {
+    //   const compProgress = progressMap[comp.id] || 0;
+    //   return compProgress === 25;
+    // });
+
+    // if (allCompleted && COMPETENCIES.length > 0) {
+    //   // Check if we have a stored completion date
+    //   const storedCompletedDate = localStorage.getItem(
+    //     "assessmentCompletedDate"
+    //   );
+    //   if (storedCompletedDate) {
+    //     setCompletedDate(new Date(storedCompletedDate));
+    //     setAssessmentStatus("completed");
+    //   } else {
+    //     // Mark as completed and store date
+    //     const now = new Date();
+    //     setCompletedDate(now);
+    //     setAssessmentStatus("completed");
+    //     localStorage.setItem("assessmentCompletedDate", now.toISOString());
+    //     const currentBandData = currentBand || "2A";
+    //     localStorage.setItem(
+    //       "assessmentData",
+    //       JSON.stringify({
+    //         currentBand: currentBandData,
+    //         status: "completed",
+    //         completedDate: now.toISOString(),
+    //       })
+    //     );
+    //   }
+    // }
+
     // Load assessment history
-    const history = localStorage.getItem("assessmentHistory");
-    if (history) {
-      setAssessmentHistory(JSON.parse(history));
-    }
+    // const history = localStorage.getItem("assessmentHistory");
+    // if (history) {
+    //   setAssessmentHistory(JSON.parse(history));
+    // }
 
     // Check for toast message
     const justCompleted = sessionStorage.getItem("justCompleted");
@@ -204,9 +348,44 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleCompetencyClick = (competency) => {
+    // Check if assessment is completed and on cooldown - lock all sections
+    if (isAssessmentOnCooldown()) {
+      const daysLeft = getDaysUntilNextAssessment();
+      setToastMessage(
+        `There are still ${daysLeft} day${daysLeft !== 1 ? 's' : ''} left to retake the assessment. You completed this assessment on ${completedDate ? completedDate.toLocaleDateString() : 'N/A'}.`
+      );
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 6000);
+      return;
+    }
+
+    // Check if the competency is unlocked
+    if (!isUnlocked(competency)) {
+      // Check if it's locked due to previous section not being completed
+      const previousCompetency = COMPETENCIES.find(
+        (c) => c.order === competency.order - 1
+      );
+      if (previousCompetency && !isCompleted(previousCompetency.id)) {
+        setToastMessage(
+          `Please complete ${previousCompetency.name || 'the previous section'} first.`
+        );
+      } else {
+        setToastMessage(
+          `This section is locked. Please complete the previous sections first.`
+        );
+      }
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
+      return;
+    }
+
     // Set the category index based on competency order (0-indexed)
     const categoryIndex = competency.order - 1;
-    navigate(`/assessment?category=${categoryIndex}`, { state: questionsData }); // Replaced history.push with navigate
+    navigate(`/assessment?category=${categoryIndex}`, { state: questionsData });
   };
 
   const handleLogout = () => {
@@ -223,9 +402,69 @@ const Dashboard = () => {
     return (progress / 25) * 100;
   };
 
+  // Check if category is completed AND synced with API
+  const isCategoryCompletedAndSynced = (categoryIndex) => {
+    const completedCategories = localStorage.getItem('completedCategories') || '{}';
+    const completedMap = JSON.parse(completedCategories);
+    const categoryKey = `category-${categoryIndex}`;
+    return completedMap[categoryKey]?.apiSynced === true;
+  };
+
   const isCompleted = (competencyId) => {
-    const progress = competencyProgress[competencyId] || 0;
-    return progress === 25;
+    // Find the category index for this competency
+    const categoryIndex = COMPETENCIES.findIndex(c => c.id === competencyId);
+    if (categoryIndex === -1) return false;
+    
+    // Check if it's completed AND API synced
+    return isCategoryCompletedAndSynced(categoryIndex);
+  };
+
+  const isUnlocked = (competency) => {
+    // If assessment is completed and on cooldown, lock all sections
+    if (isAssessmentOnCooldown()) {
+      return false;
+    }
+    
+    // First card (order 1) is always unlocked (if not on cooldown)
+    if (competency.order === 1) {
+      return true;
+    }
+    
+    // For other cards, check if the previous card is completed AND API synced
+    const previousCompetency = COMPETENCIES.find(
+      (c) => c.order === competency.order - 1
+    );
+    if (previousCompetency) {
+      return isCompleted(previousCompetency.id);
+    }
+    
+    return false;
+  };
+
+  const getDaysUntilNextAssessment = () => {
+    if (!completedDate) return 0;
+    const daysSinceCompletion = Math.floor(
+      (new Date().getTime() - completedDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return Math.max(0, 45 - daysSinceCompletion);
+  };
+
+  const canTakeAssessment = () => {
+    if (assessmentStatus === "Not Taken" || assessmentStatus === "In Progress")
+      return true;
+    if (assessmentStatus === "completed") {
+      // Check if 45 days have passed since completion
+      return getDaysUntilNextAssessment() === 0;
+    }
+    return true;
+  };
+  
+  // Check if assessment is completed and on cooldown
+  const isAssessmentOnCooldown = () => {
+    if (assessmentStatus === "completed" && completedDate) {
+      return getDaysUntilNextAssessment() > 0;
+    }
+    return false;
   };
 
   return (
@@ -234,21 +473,19 @@ const Dashboard = () => {
         {/* Header */}
         <div className="dashboard-header mb-4">
           <div className="d-flex align-items-center">
-            <ArrowBack
+            <ArrowLeft
               className="header-icon"
               onClick={() => window.history.back()}
               style={{ cursor: "pointer", marginRight: "16px" }}
             />
             <div>
               <h1 className="dashboard-title">Employee Dashboard</h1>
-              <p className="dashboard-subtitle">
-                Welcome back, {userName}
-              </p>
+              <p className="dashboard-subtitle">Welcome back, {userName}</p>
             </div>
           </div>
           <div className="d-flex align-items-center">
             <div className="band-badge">{currentBand}</div>
-            <ArrowForward
+            <LogOut
               className="header-icon"
               onClick={handleLogout}
               style={{ cursor: "pointer", marginLeft: "16px" }}
@@ -264,7 +501,7 @@ const Dashboard = () => {
                 <h6 className="card-label">Current Band</h6>
                 <div className="d-flex align-items-center justify-content-between">
                   <p className="card-value">{currentBand}</p>
-                  <AccessTime className="info-icon blue-icon" />
+                  <Clock className="info-icon blue-icon" />
                 </div>
               </Card.Body>
             </Card>
@@ -274,13 +511,91 @@ const Dashboard = () => {
               <Card.Body>
                 <h6 className="card-label">Band Assessment Status</h6>
                 <div className="d-flex align-items-center justify-content-between">
-                  <p className="card-value">{assessmentStatus}</p>
-                  <AccessTime className="info-icon orange-icon" />
+                  <p className="card-value">
+                    {assessmentStatus === "completed"
+                      ? "Completed"
+                      : assessmentStatus === "In Progress"
+                      ? "In Progress"
+                      : "Not Taken"}
+                  </p>
+                  {assessmentStatus === "completed" ? (
+                    <CheckCircle2
+                      className="info-icon"
+                      style={{ color: "#4caf50" }}
+                    />
+                  ) : (
+                    <Clock className="info-icon orange-icon" />
+                  )}
                 </div>
               </Card.Body>
             </Card>
           </div>
         </div>
+
+        {/* 45-Day Timer Display */}
+        {assessmentStatus === "completed" &&
+          getDaysUntilNextAssessment() > 0 && (
+            <Card
+              className="card-base mb-4"
+              style={{
+                backgroundColor: "#e3f2fd",
+                border: "1px solid #4a90e2",
+              }}
+            >
+              <Card.Body>
+                <div className="d-flex align-items-center gap-3">
+                  <div
+                    style={{
+                      backgroundColor: "#4a90e2",
+                      borderRadius: "50%",
+                      padding: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Clock
+                      className="info-icon"
+                      style={{ color: "white", fontSize: "24px" }}
+                    />
+                  </div>
+                  <div>
+                    <p
+                      className="mb-1"
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        color: "#333",
+                      }}
+                    >
+                      Next Assessment Available In
+                    </p>
+                    <p
+                      className="mb-0"
+                      style={{
+                        fontSize: "28px",
+                        fontWeight: 700,
+                        color: "#4a90e2",
+                      }}
+                    >
+                      {getDaysUntilNextAssessment()} day{getDaysUntilNextAssessment() !== 1 ? 's' : ''}
+                    </p>
+                    {completedDate && (
+                      <p
+                        className="mb-0 mt-1"
+                        style={{
+                          fontSize: "12px",
+                          color: "#666",
+                        }}
+                      >
+                        Completed on {completedDate.toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
+          )}
 
         {/* WoW Section */}
         <Card className="wow-section mb-4">
@@ -295,20 +610,59 @@ const Dashboard = () => {
 
             <div className="competency-cards-container p-3">
               {COMPETENCIES.map((competency) => {
-                const IconComponent = competency.icon;
                 const progress = getProgressPercentage(competency.id);
                 const completed = isCompleted(competency.id);
+                const unlocked = isUnlocked(competency);
+                const onCooldown = isAssessmentOnCooldown();
+                const gradientStyle = {
+                  background: createGradient(competency.color),
+                  color: "white",
+                };
+                const badgeStyle = {
+                  backgroundColor: competency.color,
+                };
 
                 return (
                   <Card
                     key={competency.id}
-                    className={`card-base competency-card competency-${competency.color}`}
+                    className={`card-base competency-card ${
+                      !unlocked ? "competency-locked" : ""
+                    }`}
                     onClick={() => handleCompetencyClick(competency)}
+                    style={{
+                      cursor: unlocked ? "pointer" : "not-allowed",
+                      opacity: !unlocked ? 0.6 : 1,
+                      ...gradientStyle,
+                    }}
                   >
                     <Card.Body className="competency-card-body">
-                      <div className="competency-icon-wrapper">
-                        <IconComponent className="competency-icon" />
-                        {!completed && <Lock className="competency-lock" />}
+                      {!unlocked && <Lock className="competency-lock" />}
+                      <div className="competency-icon-wrapper" style={{ position: 'relative' }}>
+                        <img
+                          src={competency.image}
+                          alt={competency.name}
+                          className="competency-icon"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                        {completed && unlocked && (
+                          <CheckCircle2 
+                            className="competency-completed-badge"
+                            style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              width: '32px',
+                              height: '32px',
+                              color: 'white',
+                              backgroundColor: 'rgba(76, 175, 80, 0.9)',
+                              borderRadius: '50%',
+                              padding: '4px',
+                              zIndex: 5
+                            }}
+                          />
+                        )}
                       </div>
 
                       <h5 className="competency-name">{competency.name}</h5>
@@ -327,22 +681,64 @@ const Dashboard = () => {
                         </div>
                       )}
 
-                      <div className={`badge-number competency-${competency.color}-badge`}>
+                      <div className="badge-number" style={badgeStyle}>
                         {competency.order}
                       </div>
                     </Card.Body>
                   </Card>
                 );
               })}
-
-            </div>
-
-            <div className="text-center mt-4">
-              <p className="sails-brand">SAILS</p>
-              <p className="sails-subtitle">Software</p>
             </div>
           </Card.Body>
         </Card>
+
+        {/* Band Assessment Section */}
+        {/* <Card className="card-base mb-4">
+          <Card.Body>
+            <h5 className="history-title mb-4">Band Assessment</h5>
+            
+            <div className="d-flex align-items-center justify-content-between p-4 border rounded" style={{ 
+              backgroundColor: "#f9f9f9",
+              transition: "background-color 0.2s"
+            }}>
+              <div className="flex-grow-1">
+                <h6 className="mb-1" style={{ fontWeight: 500, color: "#333" }}>
+                  Band {currentBand || "2A"} Assessment
+                </h6>
+                <p className="mb-0 text-muted" style={{ fontSize: "14px" }}>
+                  Complete all 5 categories with 25 questions each
+                </p>
+              </div>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (!canTakeAssessment() && assessmentStatus === "completed") {
+                    setToastMessage(`Assessment available in ${getDaysUntilNextAssessment()} days`);
+                    setShowToast(true);
+                    setTimeout(() => {
+                      setShowToast(false);
+                    }, 3000);
+                  } else {
+                    // Navigate to first competency if unlocked
+                    const firstCompetency = COMPETENCIES[0];
+                    if (isUnlocked(firstCompetency)) {
+                      navigate(`/assessment?category=0`, { state: questionsData });
+                    }
+                  }
+                }}
+                disabled={!canTakeAssessment() && assessmentStatus === "completed"}
+                style={{ 
+                  minWidth: "180px",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                {!canTakeAssessment() && assessmentStatus === "completed" 
+                  ? `Available in ${getDaysUntilNextAssessment()} days`
+                  : "Start Assessment"}
+              </Button>
+            </div>
+          </Card.Body>
+        </Card> */}
 
         {/* Assessment History Card */}
         <Card className="card-base history-card">
@@ -352,28 +748,124 @@ const Dashboard = () => {
               <p className="history-empty">No completed assessments yet</p>
             ) : (
               <div className="history-list">
-                {assessmentHistory.map((assessment, index) => (
-                  <div key={index} className="history-item">
-                    <div>
-                      <strong>Band {assessment.band} Assessment</strong>
-                      <p className="mb-0 text-muted">
-                        Completed on{" "}
-                        {new Date(
-                          assessment.completedDate
-                        ).toLocaleDateString()}
-                      </p>
-                    </div>
+                {assessmentHistory.map((assessment, index) => {
+                  const isExpanded = expandedHistory[index];
+                  const hasSections = assessment.sections && assessment.sections.length > 0;
+                  
+                  return (
+                    <div key={index} className="history-item" style={{ marginBottom: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '15px' }}>
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div style={{ flex: 1 }}>
+                          <strong>Band {assessment.band} Assessment</strong>
+                          <p className="mb-0 text-muted">
+                            {assessment.status === "Completed" ? (
+                              <>
+                                Completed on{" "}
+                                {assessment.completed_at
+                                  ? new Date(assessment.completed_at).toLocaleDateString()
+                                  : "N/A"}
+                              </>
+                            ) : (
+                              "In Progress"
+                            )}
+                          </p>
+                          {assessment.status === "Completed" && assessment.category_scores && (
+                            <div className="mt-2">
+                              <small className="text-muted">
+                                Categories: {assessment.category_scores.length} | 
+                                Total Score: {assessment.total_score?.toFixed(1) || 0}%
+                              </small>
+                            </div>
+                          )}
+                        </div>
                     <div className="text-end">
-                      <div className="score">{assessment.overallScore}%</div>
-                      <div
-                        className={`status ${assessment.passed ? "passed" : "failed"
-                          }`}
-                      >
-                        {assessment.passed ? "Passed" : "Failed"}
-                      </div>
+                      {assessment.status === "Completed" && (
+                        <div className="score">
+                          {assessment.total_score?.toFixed(1) || 0}%
+                        </div>
+                      )}
+                      {assessment.status === "In Progress" && (
+                        <div className="status" style={{ color: "#ff9800" }}>
+                          In Progress
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                      </div>
+                      
+                      {/* Expandable Questions and Answers Section */}
+                      {hasSections && (
+                        <div className="mt-3">
+                          <Button
+                            variant="link"
+                            onClick={() => setExpandedHistory(prev => ({
+                              ...prev,
+                              [index]: !prev[index]
+                            }))}
+                            style={{ 
+                              padding: 0, 
+                              textDecoration: 'none',
+                              color: '#4a90e2',
+                              fontWeight: 500
+                            }}
+                          >
+                            {isExpanded ? '▼ Hide Questions & Answers' : '▶ View Questions & Answers'}
+                          </Button>
+                          
+                          {isExpanded && (
+                            <div className="mt-3" style={{ 
+                              backgroundColor: '#f9f9f9', 
+                              padding: '15px', 
+                              borderRadius: '8px',
+                              maxHeight: '600px',
+                              overflowY: 'auto'
+                            }}>
+                              {assessment.sections.map((section, sectionIndex) => (
+                                <div key={sectionIndex} className="mb-4" style={{ 
+                                  borderBottom: sectionIndex < assessment.sections.length - 1 ? '2px solid #e0e0e0' : 'none',
+                                  paddingBottom: sectionIndex < assessment.sections.length - 1 ? '15px' : '0'
+                                }}>
+                                  <h6 style={{ 
+                                    color: '#333', 
+                                    marginBottom: '10px',
+                                    fontWeight: 600
+                                  }}>
+                                    {section.category}
+                                  </h6>
+                                  {section.questions && section.questions.map((qa, qaIndex) => (
+                                    <div key={qaIndex} className="mb-3" style={{
+                                      padding: '10px',
+                                      backgroundColor: 'white',
+                                      borderRadius: '4px',
+                                      marginBottom: '8px'
+                                    }}>
+                                      <div style={{ fontWeight: 500, marginBottom: '5px', color: '#555' }}>
+                                        Q{qaIndex + 1}: {qa.question}
+                                      </div>
+                                      <div style={{ 
+                                        color: '#4a90e2', 
+                                        fontWeight: 600,
+                                        fontSize: '14px'
+                                      }}>
+                                        Answer: {
+                                          qa.answer_value === '5' ? 'Always' :
+                                          qa.answer_value === '4' ? 'Often' :
+                                          qa.answer_value === '3' ? 'Sometimes' :
+                                          qa.answer_value === '2' ? 'Rarely' :
+                                          qa.answer_value === '1' ? 'Not yet' :
+                                          qa.answer_value
+                                        } ({qa.answer_value})
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </Card.Body>

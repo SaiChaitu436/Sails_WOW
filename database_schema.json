@@ -1,0 +1,536 @@
+{
+  "assessment_answers": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "integer",
+        "max_length": null,
+        "nullable": false,
+        "default": "nextval('assessment_answers_id_seq'::regclass)"
+      },
+      {
+        "name": "employee_id",
+        "type": "text",
+        "max_length": null,
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "band",
+        "type": "text",
+        "max_length": null,
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "category",
+        "type": "text",
+        "max_length": null,
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "question",
+        "type": "text",
+        "max_length": null,
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "answer_value",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp without time zone",
+        "max_length": null,
+        "nullable": true,
+        "default": "now()"
+      }
+    ],
+    "primary_keys": [
+      "id"
+    ],
+    "foreign_keys": []
+  },
+  "assessment_results": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "integer",
+        "max_length": null,
+        "nullable": false,
+        "default": "nextval('assessment_results_id_seq'::regclass)"
+      },
+      {
+        "name": "employee_number",
+        "type": "text",
+        "max_length": null,
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "agreed_band",
+        "type": "text",
+        "max_length": null,
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "total_score",
+        "type": "double precision",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "category_scores",
+        "type": "jsonb",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "completed_at",
+        "type": "timestamp without time zone",
+        "max_length": null,
+        "nullable": true,
+        "default": "now()"
+      },
+      {
+        "name": "questions_answers",
+        "type": "jsonb",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [
+      "id"
+    ],
+    "foreign_keys": []
+  },
+  "band1": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band1A": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band1B": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band2A": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band2B": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band3A": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band3B": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band4A": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band4B": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band5A": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band5B": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band6A": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "band6B": {
+    "columns": [
+      {
+        "name": "Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Category",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Question",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  },
+  "sails_employee_data": {
+    "columns": [
+      {
+        "name": "Employee_Number",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Employee_Name",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Agreed_Band",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Managers_Manager",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Reporting_Manager",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Department",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Current_Account",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Current_Cost_Center",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      },
+      {
+        "name": "Current_Designation",
+        "type": "text",
+        "max_length": null,
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "primary_keys": [],
+    "foreign_keys": []
+  }
+}
