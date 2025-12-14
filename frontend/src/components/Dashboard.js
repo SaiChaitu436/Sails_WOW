@@ -88,7 +88,7 @@ const Dashboard = () => {
         },
       })
       .then((response) => {
-        const data = response.data.questions;
+        const questionsByCategory = response.data.questions;
 
         // Map raw category text to competency IDs
         const categoryToCompetency = {
@@ -103,17 +103,21 @@ const Dashboard = () => {
             "Problem Solving & Critical Thinking",
         };
 
-        const grouped = data.reduce((acc, item) => {
+        // Transform the API response (already grouped by category) to competency IDs
+        const grouped = {};
+        
+        // Iterate through each category in the API response
+        Object.keys(questionsByCategory).forEach((categoryName) => {
           // Convert category name → correct competency id
-          const compId = categoryToCompetency[item.category];
-
-          if (!compId) return acc; // skip if no match
-
-          if (!acc[compId]) acc[compId] = [];
-          acc[compId].push(item.question);
-
-          return acc;
-        }, {});
+          const compId = categoryToCompetency[categoryName];
+          
+          if (compId) {
+            // Sort questions alphabetically for consistent order
+            const questions = [...questionsByCategory[categoryName]];
+            grouped[compId] = questions;
+          }
+        });
+        console.log("grouped",grouped);
 
         setQuestionsData(grouped);
       })
