@@ -125,7 +125,7 @@ def get_random_questions(band: str, db_conn=Depends(get_db_conn)):
                     detail="No categories found for this band"
                 )
 
-            final_questions = []
+            questions_by_category = {}
 
             for category in categories:
                 cur.execute(
@@ -136,21 +136,14 @@ def get_random_questions(band: str, db_conn=Depends(get_db_conn)):
 
                 if rows:
                     selected = random.sample(rows, min(25, len(rows)))
-
-                    for r in selected:
-                        final_questions.append({
-                            "band": band,
-                            "category": r["Category"],
-                            "question": r["Question"]
-                        })
-
-        random.shuffle(final_questions)
+                    # Extract just the question text for each category
+                    questions_by_category[category] = [r["Question"] for r in selected]
 
         return {
             "band": band,
             "categories_found": len(categories),
-            "total_questions": len(final_questions),
-            "questions": final_questions
+            "total_questions": sum(len(questions) for questions in questions_by_category.values()),
+            "questions": questions_by_category
         }
 
     except Exception as e:
@@ -460,3 +453,33 @@ def get_assessment_results(employee_id: str, band: str, db_conn=Depends(get_db_c
 
     except psycopg2.Error as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+@app.get("/assessment/{category}/{employee_id}")
+def get_category_info(category: str, employee_id: str, db_conn=Depends(get_db_conn)):
+    try:
+        with db_conn as conn:
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+ 
+            cur.execute("""
+                SELECT *
+                FROM assessment_answers
+                WHERE category = %s
+                  AND employee_id = %s;
+            """, (category, employee_id))
+ 
+            results = cur.fetchall()
+ 
+        return {
+            "employee_id": employee_id,
+            "category": category,
+            "total_answers": len(results),
+            "answers": results
+        }
+ 
+    except psycopg2.Error as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database error: {str(e)}"
+        )
+ 
