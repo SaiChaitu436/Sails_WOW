@@ -1,151 +1,126 @@
-Band,Category,Question
-Band 6A,Self Evaluation,"How often do you anticipate market or technology shifts and adjust organizational focus early?"
-Band 6A,Self Evaluation,"How often do you re-prioritize strategic goals without disrupting execution momentum?"
-Band 6A,Self Evaluation,"How often do you translate external changes into clear guidance for internal teams?"
-Band 6A,Self Evaluation,"How often do you model composure and clarity during high-impact business pivots?"
-Band 6A,Self Evaluation,"How often do you document adaptive decisions and communicate their rationale enterprise-wide?"
-Band 6A,Self Evaluation,"How often do you reallocate resources swiftly while maintaining delivery quality?"
-Band 6A,Self Evaluation,"How often do you enable teams to experiment and course-correct quickly without fear of failure?"
-Band 6A,Self Evaluation,"How often do you adjust processes or governance to respond to fast-changing priorities?"
-Band 6A,Self Evaluation,"How often do you balance short-term agility with long-term sustainability?"
-Band 6A,Self Evaluation,"How often do you embed adaptive metrics (e.g., cycle-time, response speed) in performance reviews?"
-Band 6A,Self Evaluation,"How often do you create learning ecosystems that anticipate future skills and roles?"
-Band 6A,Self Evaluation,"How often do you allocate resources and time for structured experimentation and reflection?"
-Band 6A,Self Evaluation,"How often do you institutionalize learning from success and failure into knowledge systems?"
-Band 6A,Self Evaluation,"How often do you connect learning outcomes directly to strategic and financial impact?"
-Band 6A,Self Evaluation,"How often do you recognize and reward curiosity, exploration, and upskilling across teams?"
-Band 6A,Self Evaluation,"How often do you remain decisive and calm during organizational uncertainty or crises?"
-Band 6A,Self Evaluation,"How often do you use disruption as a catalyst for innovation and cultural renewal?"
-Band 6A,Self Evaluation,"How often do you guide senior leaders to manage ambiguity confidently?"
-Band 6A,Self Evaluation,"How often do you reframe setbacks as learning opportunities to strengthen morale?"
-Band 6A,Self Evaluation,"How often do you sustain productivity and optimism during prolonged transformation phases?"
-Band 6A,Self Evaluation,"How often do you forecast emerging trends that could reshape your industry or talent needs?"
-Band 6A,Self Evaluation,"How often do you convert foresight insights into practical readiness initiatives?"
-Band 6A,Self Evaluation,"How often do you align learning and development investments with future-skills maps?"
-Band 6A,Self Evaluation,"How often do you coach peers to think strategically about adaptability and growth?"
-Band 6A,Self Evaluation,"How often do you embed future-readiness reviews into enterprise planning cycles?"
-Band 6A,Self Evaluation,"Do I anticipate and shape change before it arrives?"
-Band 6A,Self Evaluation,"Am I balancing agility with strategic stability?"
-Band 6A,Self Evaluation,"How well am I embedding learning into daily operations?"
-Band 6A,Self Evaluation,"Do I reward adaptive thinking and innovation consistently?"
-Band 6A,Self Evaluation,"Am I building future readiness into Sails’ long-term plans?"
-Band 6A,Communication,"When sharing long-term goals, how often do you create narratives that connect strategy with meaning for diverse audiences?"
-Band 6A,Communication,"How often do you translate board-level direction into clear, actionable priorities for all levels?"
-Band 6A,Communication,"How often do you ensure consistency between executive, customer, and employee messaging?"
-Band 6A,Communication,"How often do you communicate the 'why' behind change to inspire belief and alignment?"
-Band 6A,Communication,"How often do you audit enterprise messages for clarity, tone, and purpose consistency?"
-Band 6A,Communication,"How often do you tailor communication for partners, clients, regulators, and media appropriately?"
-Band 6A,Communication,"How often do you integrate internal and external communication for unified organizational reputation?"
-Band 6A,Communication,"How often do you represent the company externally to build credibility and trust?"
-Band 6A,Communication,"How often do you anticipate potential reputation risks and design communication mitigations?"
-Band 6A,Communication,"How often do you ensure Sails Software’s message is positioned consistently across channels?"
-Band 6A,Communication,"How often do you reinforce organizational values and behaviors through your communication?"
-Band 6A,Communication,"How often do you enable managers to cascade consistent cultural messages?"
-Band 6A,Communication,"How often do you celebrate internal stories that reflect 'The Sails Way of Working'?"
-Band 6A,Communication,"How often do you use employee feedback and engagement data to shape leadership communication?"
-Band 6A,Communication,"How often do you measure and refine engagement effectiveness across teams and geographies?"
-Band 6A,Communication,"How often do you maintain predictable, transparent communication cadences such as town halls and dashboards?"
-Band 6A,Communication,"How often do you use digital platforms to demonstrate authenticity and inclusiveness?"
-Band 6A,Communication,"How often do you adapt your communication for hybrid, remote, and multi-cultural audiences?"
-Band 6A,Communication,"How often do you participate personally in open forums to address concerns and questions?"
-Band 6A,Communication,"How often do you use data visualization to make complex ideas accessible and actionable?"
-Band 6A,Communication,"How often do you define and uphold communication standards and brand voice organization-wide?"
-Band 6A,Communication,"How often do you coach senior leaders on storytelling and influence?"
-Band 6A,Communication,"How often do you review organizational communication outcomes for improvement?"
-Band 6A,Communication,"How often do you sponsor communities of practice that advance communication excellence?"
-Band 6A,Communication,"How often do you hold yourself and peers accountable for credible, consistent communication?"
-Band 6A,Communication,"Do I connect strategy to meaning for every audience?"
-Band 6A,Communication,"Is my communication systemic or person-dependent?"
-Band 6A,Communication,"Do I audit tone and consistency regularly?"
-Band 6A,Communication,"How am I building other leaders’ communication capability?"
-Band 6A,Communication,"Does our enterprise message sustain trust under pressure?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you reframe ambiguous business problems into structured, solvable questions that align with enterprise strategy?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you challenge assumptions to ensure teams are solving the right problem, not just the visible symptom?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you integrate customer, business, and operational data before defining the core issue?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you communicate problem statements in outcome-oriented language understood across functions?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you validate problem definitions directly with executive or stakeholder sponsors before proceeding?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you design analytical models that link operational data to business outcomes?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you triangulate insights from multiple sources to confirm accuracy?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you distinguish correlation from causation before making recommendations?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you convert data insights into business implications that influence strategy?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you institutionalize learning from analyses into reusable dashboards or knowledge repositories?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you encourage teams to ideate multiple innovative options before committing to one solution?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you leverage cross-domain expertise to co-design holistic solutions?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you apply design-thinking or systems-thinking principles to ensure long-term scalability?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you test solution feasibility against resource, risk, and change-management constraints?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you embed feedback mechanisms in solutions to enable continuous improvement?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you lead structured decision reviews balancing speed and data integrity?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you communicate the reasoning and trade-offs behind critical decisions transparently?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you align decision ownership clearly across inter-dependent teams?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you monitor post-implementation impact to ensure problem resolution sustains over time?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you revise or sunset decisions that no longer serve business outcomes?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you extract repeatable frameworks from successful projects for enterprise re-use?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you capture and circulate post-mortems or retrospectives to prevent repeat issues?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you identify systemic causes behind recurring challenges rather than fixing symptoms?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you mentor leaders to apply structured problem-solving approaches independently?"
-Band 6A,Problem Solving & Critical Thinking,"How often do you influence policy, governance, or process design based on accumulated learning?"
-Band 6A,Problem Solving & Critical Thinking,"Do I connect every problem to the larger strategic purpose?"
-Band 6A,Problem Solving & Critical Thinking,"Am I distinguishing evidence from assumptions before acting?"
-Band 6A,Problem Solving & Critical Thinking,"How often do I embed learning back into organizational systems?"
-Band 6A,Problem Solving & Critical Thinking,"Do I mentor others to sustain structured problem-solving culture?"
-Band 6A,Problem Solving & Critical Thinking,"Are my solutions scalable, data-backed, and future-oriented?"
-Band 6A,Teamwork & Collaboration,"How often do you connect multi-function leaders toward one enterprise-level outcome rather than functional silos?"
-Band 6A,Teamwork & Collaboration,"How often do you anticipate cross-department conflicts and realign priorities through data-driven dialogue?"
-Band 6A,Teamwork & Collaboration,"How often do you communicate shared success metrics across business units to sustain alignment?"
-Band 6A,Teamwork & Collaboration,"How often do you transform competing objectives into joint accountability plans?"
-Band 6A,Teamwork & Collaboration,"How often do you model cross-functional collaboration during high-stakes or ambiguous initiatives?"
-Band 6A,Teamwork & Collaboration,"How often do you establish governance mechanisms (forums, charters, councils) that institutionalize collaboration?"
-Band 6A,Teamwork & Collaboration,"How often do you ensure collaboration principles are documented and embedded in workflows?"
-Band 6A,Teamwork & Collaboration,"How often do you design inter-team processes that minimize duplication and hand-off delays?"
-Band 6A,Teamwork & Collaboration,"How often do you drive transparency through shared dashboards or enterprise review cadences?"
-Band 6A,Teamwork & Collaboration,"How often do you evaluate collaboration effectiveness using measurable outcomes, not just activity levels?"
-Band 6A,Teamwork & Collaboration,"How often do you empower peers and leaders to take collaborative decisions within defined boundaries?"
-Band 6A,Teamwork & Collaboration,"How often do you promote psychological safety so diverse views can be expressed without fear?"
-Band 6A,Teamwork & Collaboration,"How often do you ensure that decision authority is balanced between autonomy and governance?"
-Band 6A,Teamwork & Collaboration,"How often do you coach leaders to resolve inter-team conflicts independently, guided by shared values?"
-Band 6A,Teamwork & Collaboration,"How often do you institutionalize distributed leadership through cross-functional decision frameworks?"
-Band 6A,Teamwork & Collaboration,"How often do you identify and address trust gaps proactively between senior teams?"
-Band 6A,Teamwork & Collaboration,"How often do you recognize collaborative behavior publicly during reviews or enterprise meetings?"
-Band 6A,Teamwork & Collaboration,"How often do you ensure equitable credit and visibility across functions, geographies, and levels?"
-Band 6A,Teamwork & Collaboration,"How often do you foster inclusion by ensuring every function’s contribution is valued in shared outcomes?"
-Band 6A,Teamwork & Collaboration,"How often do you champion recognition systems that celebrate collaboration quality, not hierarchy?"
-Band 6A,Teamwork & Collaboration,"How often do you represent the organization in multi-company or industry-wide collaboration forums?"
-Band 6A,Teamwork & Collaboration,"How often do you create joint initiatives with external partners that yield mutual innovation or learning?"
-Band 6A,Teamwork & Collaboration,"How often do you align partnership expectations using co-authored success metrics and review rhythms?"
-Band 6A,Teamwork & Collaboration,"How often do you integrate external collaboration insights back into internal systems and culture?"
-Band 6A,Teamwork & Collaboration,"How often do you develop sustainable frameworks for long-term ecosystem alliances?"
-Band 6A,Teamwork & Collaboration,"Do I link collaboration outcomes directly to strategic results?"
-Band 6A,Teamwork & Collaboration,"Have I built systems that make collaboration repeatable and measurable?"
-Band 6A,Teamwork & Collaboration,"Do I distribute decision-making authority effectively?"
-Band 6A,Teamwork & Collaboration,"How well do I ensure inclusion and recognition across teams?"
-Band 6A,Teamwork & Collaboration,"Are external partnerships translating into internal learning value?"
-Band 6A,Accountability & Ownership,"How often do you define accountability structures that connect individual goals to enterprise outcomes?"
-Band 6A,Accountability & Ownership,"How often do you communicate ownership boundaries clearly across departments to prevent overlap or confusion?"
-Band 6A,Accountability & Ownership,"How often do you integrate accountability metrics into strategic dashboards for transparency?"
-Band 6A,Accountability & Ownership,"How often do you take full responsibility for enterprise-level outcomes, not just function success?"
-Band 6A,Accountability & Ownership,"How often do you review and update ownership frameworks based on evolving business priorities?"
-Band 6A,Accountability & Ownership,"How often do you ensure enterprise programs deliver on commitments despite cross-functional complexity?"
-Band 6A,Accountability & Ownership,"How often do you set and monitor reliability benchmarks for leaders reporting to you?"
-Band 6A,Accountability & Ownership,"How often do you communicate risks proactively to sponsors and mitigate without escalation?"
-Band 6A,Accountability & Ownership,"How often do you balance accountability with empowerment—holding people responsible while enabling autonomy?"
-Band 6A,Accountability & Ownership,"How often do you maintain credibility through transparent tracking of commitments, delays, and corrections?"
-Band 6A,Accountability & Ownership,"How often do you implement systems that ensure quality assurance across functions?"
-Band 6A,Accountability & Ownership,"How often do you reinforce ethical decision-making as part of accountability discussions?"
-Band 6A,Accountability & Ownership,"How often do you use performance data to identify systemic process issues, not just people issues?"
-Band 6A,Accountability & Ownership,"How often do you intervene early when accountability gaps threaten delivery integrity?"
-Band 6A,Accountability & Ownership,"How often do you ensure audit readiness and evidence-based reviews for all enterprise deliverables?"
-Band 6A,Accountability & Ownership,"How often do you model ownership by admitting enterprise-level errors publicly and addressing them promptly?"
-Band 6A,Accountability & Ownership,"How often do you coach senior leaders to build accountability mindsets within their own teams?"
-Band 6A,Accountability & Ownership,"How often do you encourage open dialogue about challenges rather than blame?"
-Band 6A,Accountability & Ownership,"How often do you build trust by linking responsibility to recognition and fairness?"
-Band 6A,Accountability & Ownership,"How often do you ensure collective accountability in cross-functional outcomes rather than silos?"
-Band 6A,Accountability & Ownership,"How often do you ensure continuity of ownership during transitions or leadership changes?"
-Band 6A,Accountability & Ownership,"How often do you conduct accountability reviews post-project to extract and act on lessons learned?"
-Band 6A,Accountability & Ownership,"How often do you align long-term ownership with enterprise succession and sustainability plans?"
-Band 6A,Accountability & Ownership,"How often do you maintain focus on end-user impact when measuring accountability?"
-Band 6A,Accountability & Ownership,"How often do you transform accountability learnings into governance models replicable enterprise-wide?"
-Band 6A,Accountability & Ownership,"Do I create systems that ensure accountability continues even without my presence?"
-Band 6A,Accountability & Ownership,"Do I role-model ownership under scrutiny or pressure?"
-Band 6A,Accountability & Ownership,"Are accountability expectations visible, measurable, and fair across functions?"
-Band 6A,Accountability & Ownership,"How often do I align accountability with ethics, not just output?"
-Band 6A,Accountability & Ownership,"What mechanisms can make reliability a permanent organizational habit?"
+﻿Band,Competency,Sub_Section,Q.No,Question,
+Band 6A,Accountability & Ownership,Enterprise Accountability,Q1,"""How often do you define accountability structures that connect individual goals to enterprise outcomes?"" ",
+Band 6A,Accountability & Ownership,Enterprise Accountability,Q2,"""How often do you communicate ownership boundaries clearly across departments to prevent overlap or confusion?"" ",
+Band 6A,Accountability & Ownership,Enterprise Accountability,Q3,"""How often do you integrate accountability metrics into strategic dashboards for transparency?"" ",
+Band 6A,Accountability & Ownership,Enterprise Accountability,Q4,"""How often do you take full responsibility for enterprise-level outcomes, not just function success?"" ",
+Band 6A,Accountability & Ownership,Enterprise Accountability,Q5,"""How often do you review and update ownership frameworks based on evolving business priorities?"" ",
+Band 6A,Accountability & Ownership,Reliability at Scale,Q6,"""How often do you ensure enterprise programs deliver on commitments despite cross-functional complexity?"" ",
+Band 6A,Accountability & Ownership,Reliability at Scale,Q7,"""How often do you set and monitor reliability benchmarks for leaders reporting to you?"" ",
+Band 6A,Accountability & Ownership,Reliability at Scale,Q8,"""How often do you communicate risks proactively to sponsors and mitigate without escalation?"" ",
+Band 6A,Accountability & Ownership,Reliability at Scale,Q9,"""How often do you balance accountability with empowerment—holding people responsible while enabling autonomy?"" ",
+Band 6A,Accountability & Ownership,Reliability at Scale,Q10,"""How often do you maintain credibility through transparent tracking of commitments, delays, and corrections?"" ",
+Band 6A,Accountability & Ownership,Quality Governance & Integrity,Q11,"""How often do you implement systems that ensure quality assurance across functions?"" ",
+Band 6A,Accountability & Ownership,Quality Governance & Integrity,Q12,"""How often do you reinforce ethical decision-making as part of accountability discussions?"" ",
+Band 6A,Accountability & Ownership,Quality Governance & Integrity,Q13,"""How often do you lead high-stakes audits or reviews to verify organizational compliance?"" ",
+Band 6A,Accountability & Ownership,Quality Governance & Integrity,Q14,"""How often do you address systemic quality gaps by institutionalizing better processes rather than just fixing symptoms?"" ",
+Band 6A,Accountability & Ownership,Quality Governance & Integrity,Q15,"""How often do you champion a culture where integrity is valued above short-term delivery gains?"" ",
+Band 6A,Accountability & Ownership,Strategic Follow-Through,Q16,"""How often do you ensure long-term strategic initiatives stay on track during business cycles?"" ",
+Band 6A,Accountability & Ownership,Strategic Follow-Through,Q17,"""How often do you hold yourself and peers accountable for the culture and values of the organization?"" ",
+Band 6A,Accountability & Ownership,Strategic Follow-Through,Q18,"""How often do you verify that external partner or vendor delivery aligns with Sails Software’s standards?"" ",
+Band 6A,Accountability & Ownership,Strategic Follow-Through,Q19,"""How often do you close the loop on major decisions with clear documentation and outcome reporting?"" ",
+Band 6A,Accountability & Ownership,Strategic Follow-Through,Q20,"""How often do you represent the organization’s reliability in high-level client or stakeholder forums?"" ",
+Band 6A,Accountability & Ownership,Coaching for Ownership,Q21,"""How often do you mentor other leaders to improve their own team’s accountability habits?"" ",
+Band 6A,Accountability & Ownership,Coaching for Ownership,Q22,"""How often do you use success and failure stories to teach the importance of ownership?"" ",
+Band 6A,Accountability & Ownership,Coaching for Ownership,Q23,"""How often do you facilitate workshops or discussions that clarify shared ownership for complex goals?"" ",
+Band 6A,Accountability & Ownership,Coaching for Ownership,Q24,"""How often do you reward and recognize deep ownership behaviors in your division or function?"" ",
+Band 6A,Accountability & Ownership,Coaching for Ownership,Q25,"""How often do you develop successors who exhibit strong independent accountability?"" ",
+Band 6A,Adaptability & Learning Agility,Strategic Adaptability,Q1,"""How often do you anticipate market or technology shifts and adjust organizational focus early?"" ",
+Band 6A,Adaptability & Learning Agility,Strategic Adaptability,Q2,"""How often do you re-prioritize strategic goals without disrupting execution momentum?"" ",
+Band 6A,Adaptability & Learning Agility,Strategic Adaptability,Q3,"""How often do you translate external changes into clear guidance for internal teams?"" ",
+Band 6A,Adaptability & Learning Agility,Strategic Adaptability,Q4,"""How often do you model composure and clarity during high-impact business pivots?"" ",
+Band 6A,Adaptability & Learning Agility,Strategic Adaptability,Q5,"""How often do you document adaptive decisions and communicate their rationale enterprise-wide?"" ",
+Band 6A,Adaptability & Learning Agility,Agility in Execution,Q6,"""How often do you reallocate resources swiftly while maintaining delivery quality?"" ",
+Band 6A,Adaptability & Learning Agility,Agility in Execution,Q7,"""How often do you enable teams to experiment and course-correct quickly without fear of failure?"" ",
+Band 6A,Adaptability & Learning Agility,Agility in Execution,Q8,"""How often do you adjust processes or governance to respond to fast-changing priorities?"" ",
+Band 6A,Adaptability & Learning Agility,Agility in Execution,Q9,"""How often do you balance short-term agility with long-term sustainability?"" ",
+Band 6A,Adaptability & Learning Agility,Agility in Execution,Q10,"""How often do you embed adaptive metrics (e.g., cycle-time, response speed) in performance reviews?"" ",
+Band 6A,Adaptability & Learning Agility,Continuous Learning Leadership,Q11,"""How often do you create learning ecosystems that anticipate future skills and roles?"" ",
+Band 6A,Adaptability & Learning Agility,Continuous Learning Leadership,Q12,"""How often do you allocate resources and time for structured experimentation and reflection?"" ",
+Band 6A,Adaptability & Learning Agility,Continuous Learning Leadership,Q13,"""How often do you institutionalize learning from success and failure into knowledge systems?"" ",
+Band 6A,Adaptability & Learning Agility,Continuous Learning Leadership,Q14,"""How often do you connect learning outcomes directly to strategic business improvements?"" ",
+Band 6A,Adaptability & Learning Agility,Continuous Learning Leadership,Q15,"""How often do you mentor others to build a growth mindset and comfort with uncertainty?"" ",
+Band 6A,Adaptability & Learning Agility,Resilience & Change Management,Q16,"""How often do you identify and mitigate change fatigue across the organization?"" ",
+Band 6A,Adaptability & Learning Agility,Resilience & Change Management,Q17,"""How often do you sustain high morale and focus during periods of prolonged ambiguity?"" ",
+Band 6A,Adaptability & Learning Agility,Resilience & Change Management,Q18,"""How often do you design change management plans that address both technical and human needs?"" ",
+Band 6A,Adaptability & Learning Agility,Resilience & Change Management,Q19,"""How often do you facilitate open dialogues to address resistance to change constructively?"" ",
+Band 6A,Adaptability & Learning Agility,Resilience & Change Management,Q20,"""How often do you celebrate small wins during transitions to maintain momentum?"" ",
+Band 6A,Adaptability & Learning Agility,Future Readiness & Foresight,Q21,"""How often do you conduct scenario planning to prepare for potential industry disruptions?"" ",
+Band 6A,Adaptability & Learning Agility,Future Readiness & Foresight,Q22,"""How often do you advocate for investments in emerging capabilities before they are urgently needed?"" ",
+Band 6A,Adaptability & Learning Agility,Future Readiness & Foresight,Q23,"""How often do you benchmark Sails Software’s adaptability against industry leaders?"" ",
+Band 6A,Adaptability & Learning Agility,Future Readiness & Foresight,Q24,"""How often do you simplify complex future trends into actionable organizational strategies?"" ",
+Band 6A,Adaptability & Learning Agility,Future Readiness & Foresight,Q25,"""How often do you ensure the organization’s structure remains flexible enough for future growth?"" ",
+Band 6A,Communication,Enterprise Narrative,Q1,"""When sharing long-term goals, how often do you create narratives that connect strategy with meaning for diverse audiences?"" ",
+Band 6A,Communication,Enterprise Narrative,Q2,"""How often do you translate board-level direction into clear, actionable priorities for all levels?"" ",
+Band 6A,Communication,Enterprise Narrative,Q3,"""How often do you ensure consistency between executive, customer, and employee messaging?"" ",
+Band 6A,Communication,Enterprise Narrative,Q4,"""How often do you communicate the “why” behind change to inspire belief and alignment?"" ",
+Band 6A,Communication,Enterprise Narrative,Q5,"""How often do you audit enterprise messages for clarity, tone, and purpose consistency?"" ",
+Band 6A,Communication,Influence Across the Ecosystem,Q6,"""How often do you tailor communication for partners, clients, regulators, and media appropriately?"" ",
+Band 6A,Communication,Influence Across the Ecosystem,Q7,"""How often do you integrate internal and external communication for unified organizational reputation?"" ",
+Band 6A,Communication,Influence Across the Ecosystem,Q8,"""How often do you represent the company externally to build credibility and trust?"" ",
+Band 6A,Communication,Influence Across the Ecosystem,Q9,"""How often do you anticipate potential reputation risks and design communication mitigations?"" ",
+Band 6A,Communication,Influence Across the Ecosystem,Q10,"""How often do you ensure Sails Software’s message is positioned consistently across channels?"" ",
+Band 6A,Communication,Culture and Engagement,Q11,"""How often do you reinforce organizational values and behaviors through your communication?"" ",
+Band 6A,Communication,Culture and Engagement,Q12,"""How often do you enable managers to cascade consistent cultural messages?"" ",
+Band 6A,Communication,Culture and Engagement,Q13,"""How often do you celebrate internal success stories that exemplify our mission?"" ",
+Band 6A,Communication,Culture and Engagement,Q14,"""How often do you maintain open, two-way communication channels with all employee levels?"" ",
+Band 6A,Communication,Culture and Engagement,Q15,"""How often do you measure and act upon employee sentiment and feedback trends?"" ",
+Band 6A,Communication,Digital Transparency,Q16,"""How often do you use digital platforms (intranet, town-halls, video) to build a transparent culture?"" ",
+Band 6A,Communication,Digital Transparency,Q17,"""How often do you ensure critical information reaches remote or global teams simultaneously?"" ",
+Band 6A,Communication,Digital Transparency,Q18,"""How often do you share progress updates and business performance data openly?"" ",
+Band 6A,Communication,Digital Transparency,Q19,"""How often do you use data visualization to make complex business updates easy to follow?"" ",
+Band 6A,Communication,Digital Transparency,Q20,"""How often do you maintain a consistent and professional personal brand that reflects company values?"" ",
+Band 6A,Communication,Governance and Mentorship,Q21,"""How often do you establish communication standards and templates for the organization?"" ",
+Band 6A,Communication,Governance and Mentorship,Q22,"""How often do you mentor other leaders on strategic messaging and public speaking?"" ",
+Band 6A,Communication,Governance and Mentorship,Q23,"""How often do you ensure that difficult news is delivered with empathy and clarity?"" ",
+Band 6A,Communication,Governance and Mentorship,Q24,"""How often do you act as a mediator in high-level communication breakdowns?"" ",
+Band 6A,Communication,Governance and Mentorship,Q25,"""How often do you refine communication strategies based on impact and audience feedback?"" ",
+Band 6A,Problem Solving,Strategic Problem Framing,Q1,"""How often do you reframe ambiguous business problems into structured, solvable questions that align with enterprise strategy?"" ",
+Band 6A,Problem Solving,Strategic Problem Framing,Q2,"""How often do you challenge assumptions to ensure teams are solving the right problem, not just the visible symptom?"" ",
+Band 6A,Problem Solving,Strategic Problem Framing,Q3,"""How often do you integrate customer, business, and operational data before defining the core issue?"" ",
+Band 6A,Problem Solving,Strategic Problem Framing,Q4,"""How often do you communicate problem statements in outcome-oriented language understood across functions?"" ",
+Band 6A,Problem Solving,Strategic Problem Framing,Q5,"""How often do you validate problem definitions directly with executive or stakeholder sponsors before proceeding?"" ",
+Band 6A,Problem Solving,Data-Driven Analysis,Q6,"""How often do you design analytical models that link operational data to business outcomes?"" ",
+Band 6A,Problem Solving,Data-Driven Analysis,Q7,"""How often do you triangulate insights from multiple sources (quantitative and qualitative) to confirm accuracy?"" ",
+Band 6A,Problem Solving,Data-Driven Analysis,Q8,"""How often do you distinguish correlation from causation before making recommendations?"" ",
+Band 6A,Problem Solving,Data-Driven Analysis,Q9,"""How often do you convert data insights into business implications that influence strategy?"" ",
+Band 6A,Problem Solving,Data-Driven Analysis,Q10,"""How often do you institutionalize learning from analyses into reusable dashboards or knowledge repositories?"" ",
+Band 6A,Problem Solving,Innovation & Solution Design,Q11,"""How often do you encourage teams to ideate multiple innovative options before committing to a path?"" ",
+Band 6A,Problem Solving,Innovation & Solution Design,Q12,"""How often do you leverage cross-industry benchmarks or diverse perspectives to spark new ideas?"" ",
+Band 6A,Problem Solving,Innovation & Solution Design,Q13,"""How often do you evaluate solution trade-offs (risk, cost, time, impact) using objective scoring?"" ",
+Band 6A,Problem Solving,Innovation & Solution Design,Q14,"""How often do you design scalable solutions that solve for both current needs and future growth?"" ",
+Band 6A,Problem Solving,Innovation & Solution Design,Q15,"""How often do you validate proposed solutions through pilots or rapid prototyping before full rollout?"" ",
+Band 6A,Problem Solving,Decision Rigor & Governance,Q16,"""How often do you make high-stakes decisions based on evidence and long-term value?"" ",
+Band 6A,Problem Solving,Decision Rigor & Governance,Q17,"""How often do you document decision rationale to ensure transparency and future learning?"" ",
+Band 6A,Problem Solving,Decision Rigor & Governance,Q18,"""How often do you pre-align key stakeholders to ensure decision buy-in and smooth execution?"" ",
+Band 6A,Problem Solving,Decision Rigor & Governance,Q19,"""How often do you balance decision speed with the need for analytical depth?"" ",
+Band 6A,Problem Solving,Decision Rigor & Governance,Q20,"""How often do you establish decision-making frameworks (e.g., RACI) for complex initiatives?"" ",
+Band 6A,Problem Solving,Learning & Systems Thinking,Q21,"""How often do you conduct post-mortems or retrospectives to capture systemic lessons?"" ",
+Band 6A,Problem Solving,Learning & Systems Thinking,Q22,"""How often do you integrate lessons from failures back into organizational policies or playbooks?"" ",
+Band 6A,Problem Solving,Learning & Systems Thinking,Q23,"""How often do you identify and fix recurring root causes rather than repeated firefighting?"" ",
+Band 6A,Problem Solving,Learning & Systems Thinking,Q24,"""How often do you mentor others in structured problem-solving and critical thinking skills?"" ",
+Band 6A,Problem Solving,Learning & Systems Thinking,Q25,"""How often do you track the long-term impact of decisions against original success criteria?"" ",
+Band 6A,Teamwork & Collaboration,Enterprise Alignment,Q1,"""How often do you connect multi-function leaders toward one enterprise-level outcome rather than functional silos?"" ",
+Band 6A,Teamwork & Collaboration,Enterprise Alignment,Q2,"""How often do you anticipate cross-department conflicts and realign priorities through data-driven dialogue?"" ",
+Band 6A,Teamwork & Collaboration,Enterprise Alignment,Q3,"""How often do you communicate shared success metrics across business units to sustain alignment?"" ",
+Band 6A,Teamwork & Collaboration,Enterprise Alignment,Q4,"""How often do you transform competing objectives into joint accountability plans?"" ",
+Band 6A,Teamwork & Collaboration,Enterprise Alignment,Q5,"""How often do you model cross-functional collaboration during high-stakes or ambiguous initiatives?"" ",
+Band 6A,Teamwork & Collaboration,Systemic Architecture,Q6,"""How often do you establish governance mechanisms (forums, charters, councils) that institutionalize collaboration?"" ",
+Band 6A,Teamwork & Collaboration,Systemic Architecture,Q7,"""How often do you ensure collaboration principles are documented and embedded in workflows?"" ",
+Band 6A,Teamwork & Collaboration,Systemic Architecture,Q8,"""How often do you design inter-team processes that minimize duplication and hand-off delays?"" ",
+Band 6A,Teamwork & Collaboration,Systemic Architecture,Q9,"""How often do you drive transparency through shared dashboards or enterprise review cadences?"" ",
+Band 6A,Teamwork & Collaboration,Systemic Architecture,Q10,"""How often do you evaluate collaboration effectiveness using measurable outcomes, not just activity levels?"" ",
+Band 6A,Teamwork & Collaboration,Empowerment,Q11,"""How often do you empower peers and leaders to take collaborative decisions within defined boundaries?"" ",
+Band 6A,Teamwork & Collaboration,Empowerment,Q12,"""How often do you promote psychological safety so diverse teams can challenge and innovate together?"" ",
+Band 6A,Teamwork & Collaboration,Empowerment,Q13,"""How often do you sponsor emerging leaders to run cross-functional projects with visibility?"" ",
+Band 6A,Teamwork & Collaboration,Empowerment,Q14,"""How often do you distribute authority to ensure speed without losing alignment?"" ",
+Band 6A,Teamwork & Collaboration,Empowerment,Q15,"""How often do you remove hierarchy-driven blockers that prevent open communication between teams?"" ",
+Band 6A,Teamwork & Collaboration,Trust & Conflict,Q16,"""How often do you resolve systemic trust gaps between departments through neutral facilitation?"" ",
+Band 6A,Teamwork & Collaboration,Trust & Conflict,Q17,"""How often do you use facts and shared goals to navigate high-stakes disagreements between leaders?"" ",
+Band 6A,Teamwork & Collaboration,Trust & Conflict,Q18,"""How often do you reinforce a culture of mutual respect and inclusion across global/diverse teams?"" ",
+Band 6A,Teamwork & Collaboration,Trust & Conflict,Q19,"""How often do you address siloed behaviors directly and transparently?"" ",
+Band 6A,Teamwork & Collaboration,Trust & Conflict,Q20,"""How often do you maintain collaboration consistency even under extreme delivery pressure?"" ",
+Band 6A,Teamwork & Collaboration,Ecosystem Integration,Q21,"""How often do you align external partners, vendors, or clients into Sails Software’s collaborative ecosystem?"" ",
+Band 6A,Teamwork & Collaboration,Ecosystem Integration,Q22,"""How often do you facilitate knowledge-sharing rituals that span the entire organization?"" ",
+Band 6A,Teamwork & Collaboration,Ecosystem Integration,Q23,"""How often do you celebrate collective achievements that involve multiple teams and functions?"" ",
+Band 6A,Teamwork & Collaboration,Ecosystem Integration,Q24,"""How often do you use feedback from external partners to improve internal collaboration?"" ",
+Band 6A,Teamwork & Collaboration,Ecosystem Integration,Q25,"""How often do you architect long-term strategic alliances that benefit the whole organization?"" ",

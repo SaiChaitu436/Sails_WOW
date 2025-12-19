@@ -3,6 +3,7 @@
 -- =====================================================
 -- 1. Employee Data Table
 -- =====================================================
+
 CREATE TABLE IF NOT EXISTS sails_employee_data (
     "Employee_Number" TEXT,
     "Employee_Name" TEXT,
@@ -16,8 +17,9 @@ CREATE TABLE IF NOT EXISTS sails_employee_data (
 );
 
 -- =====================================================
--- 2. Assessment Answers Table (Ongoing Assessments)
+-- 2. Assessment Tables
 -- =====================================================
+
 CREATE TABLE IF NOT EXISTS assessment_answers (
     id SERIAL PRIMARY KEY,
     employee_id TEXT NOT NULL,
@@ -35,9 +37,6 @@ ON assessment_answers(employee_id, band);
 CREATE INDEX IF NOT EXISTS idx_assessment_answers_category 
 ON assessment_answers(category, employee_id);
 
--- =====================================================
--- 3. Assessment Results Table (Completed Assessments)
--- =====================================================
 CREATE TABLE IF NOT EXISTS assessment_results (
     id SERIAL PRIMARY KEY,
     employee_number TEXT NOT NULL,
@@ -56,101 +55,129 @@ CREATE INDEX IF NOT EXISTS idx_assessment_results_completed_at
 ON assessment_results(completed_at);
 
 -- =====================================================
--- 4. Band Question Tables
+-- 3. Band Question Tables
 -- =====================================================
 -- These tables store questions for each band level
--- Each table has the same structure: Band, Category, Question
+-- Each table has the same structure: Band, Competency, Sub_Section, Question
 
--- Band 1
+-- BAND1
 CREATE TABLE IF NOT EXISTS band1 (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 1A
+-- BAND1A
 CREATE TABLE IF NOT EXISTS band1A (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 1B
+-- BAND1B
 CREATE TABLE IF NOT EXISTS band1B (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 2A
+-- BAND2A
 CREATE TABLE IF NOT EXISTS band2A (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 2B
+-- BAND2B
 CREATE TABLE IF NOT EXISTS band2B (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 3A
+-- BAND3A
 CREATE TABLE IF NOT EXISTS band3A (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 3B
+-- BAND3B
 CREATE TABLE IF NOT EXISTS band3B (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 4A
+-- BAND4A
 CREATE TABLE IF NOT EXISTS band4A (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" TEXT,
     "Question" TEXT
 );
 
--- Band 4B
+-- BAND4B
 CREATE TABLE IF NOT EXISTS band4B (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 5A
+-- BAND5A
 CREATE TABLE IF NOT EXISTS band5A (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 5B
+-- BAND5B
 CREATE TABLE IF NOT EXISTS band5B (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" INTEGER,
     "Question" TEXT
 );
 
--- Band 6A
+-- BAND6A
 CREATE TABLE IF NOT EXISTS band6A (
     "Band" TEXT,
-    "Category" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" TEXT,
+    "Question" TEXT,
+    "f" INTEGER
+);
+
+-- BAND6B
+CREATE TABLE IF NOT EXISTS band6B (
+    "Band" TEXT,
+    "Competency" TEXT,
+    "Sub_Section" TEXT,
+    "Q.No" TEXT,
     "Question" TEXT
 );
 
--- Band 6B
-CREATE TABLE IF NOT EXISTS band6B (
-    "Band" TEXT,
-    "Category" TEXT,
-    "Question" TEXT
-);
 
 -- =====================================================
 -- Notes:
@@ -158,24 +185,26 @@ CREATE TABLE IF NOT EXISTS band6B (
 -- 1. assessment_answers: Stores ongoing assessment answers
 --    - Data is moved to assessment_results when assessment is completed
 --    - Data is deleted from assessment_answers after completion
---
+
 -- 2. assessment_results: Stores completed assessment results
 --    - Contains final scores, category scores, and all questions/answers
 --    - questions_answers column stores JSONB with all Q&A pairs
 --    - completed_at timestamp is used for 45-day cooldown calculation
---
+
 -- 3. Band tables: Store question banks for each band level
---    - Questions are randomly selected (25 per category)
---    - Categories map to competencies in the frontend
---
+--    - Questions are randomly selected (25 per sub-section)
+--    - Competency field maps to main competencies in the frontend (Communication, Adaptability & Learning Agility, etc.)
+--    - Sub_Section field contains the specific sub-categories (Task Ownership, Reliability & Follow-Through, etc.)
+--    - Q.No field stores the question number
+--    - Note: band6A has an additional "f" column (may be a data artifact)
+
 -- 4. Indexes: Created for performance optimization on frequently queried columns
---
--- =====================================================
--- Migration Scripts (if needed):
--- =====================================================
-
--- If questions_answers column doesn't exist in assessment_results:
--- ALTER TABLE assessment_results ADD COLUMN IF NOT EXISTS questions_answers JSONB;
+--    - assessment_answers: Indexed on (employee_id, band) and (category, employee_id)
+--    - assessment_results: Indexed on (employee_number, agreed_band) and (completed_at)
 
 -- =====================================================
-
+-- Migration Notes:
+-- =====================================================
+-- The database uses "Sub_Section" in band tables (not "Category")
+-- The assessment_answers table uses "category" to store the competency name
+-- This is intentional as category in assessment_answers refers to the main competency

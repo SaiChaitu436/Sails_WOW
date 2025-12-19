@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Card, Button, ProgressBar } from "react-bootstrap";
-import { ArrowLeft, CheckCircle2, Clock, LogOut, Lock } from "lucide-react";
+import { CheckCircle2, Clock, Lock } from "lucide-react";
 import axios from "axios";
 import "../styles.css";
 import "./Dashboard.css";
+import * as dateFns from "date-fns"
 
 const COMPETENCIES = [
   {
@@ -79,11 +80,12 @@ const Dashboard = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [expandedHistory, setExpandedHistory] = useState({});
+  const [expandedScores, setExpandedScores] = useState({});
 
   const getQuestions = (band, category) => {
     // Ensure band format is correct (add 'band' prefix if not present)
     const bandName = band.startsWith('band') ? band : `band${band}`;
-    
+
     axios
       .get(`http://localhost:8000/bands/${bandName}/random-questions`, {
         headers: {
@@ -92,35 +94,60 @@ const Dashboard = () => {
         },
       })
       .then((response) => {
-        console.log(response.data);
+        console.log('API Response:', response.data);
         const data = response.data.questions;
 
-        // Map raw category text to competency IDs
-        const categoryToCompetency = {
-          "Self evaluation Communication": "Communication",
-          "Self evalauation Adaptability & Learning Agility":
-            "Adaptability & Learning Agility",
-          "Self evaluation Teamwork & Collaboration":
-            "Teamwork & Collaboration",
-          "Self evalauation Accountability & Ownership":
-            "Accountability & Ownership",
-          "Self evaluation Problem Solving & Critical Thinking":
-            "Problem Solving & Critical Thinking",
+        // Map Competency values from database to frontend competency IDs
+        // The Competency field from the database should match the competency IDs
+        const competencyMapping = {
+          "Communication": "Communication",
+          "Adaptability & Learning Agility": "Adaptability & Learning Agility",
+          "Teamwork & Collaboration": "Teamwork & Collaboration",
+          "Accountability & Ownership": "Accountability & Ownership",
+          "Problem Solving & Critical Thinking": "Problem Solving & Critical Thinking",
         };
 
-        const grouped = data.reduce((acc, item) => {
-          // Convert category name → correct competency id
-          const compId = categoryToCompetency[item.category];
+        // Log unique Competency values for debugging
+        const uniqueCompetencies = [...new Set(data.map(item => item.Competency || item.competency).filter(Boolean))];
+        console.log('Unique Competency values from API:', uniqueCompetencies);
 
-          if (!compId) return acc; // skip if no match
+        const grouped = data.reduce((acc, item) => {
+          // Use Competency field from database (case-insensitive matching)
+          const competency = item.Competency || item.competency;
+          const questionText = item.Question || item.question;
+
+          if (!competency || !questionText) {
+            console.warn('Missing Competency or Question in item:', item);
+            return acc;
+          }
+
+          // Normalize competency name (trim, lowercase for comparison)
+          const normalizedCompetency = competency.trim().toLowerCase();
+
+          // Find matching competency ID (case-insensitive with normalization)
+          const compId = Object.keys(competencyMapping).find(
+            key => key.trim().toLowerCase() === normalizedCompetency
+          );
+
+          if (!compId) {
+            // Try direct match first
+            const directMatch = competencyMapping[competency];
+            if (directMatch) {
+              if (!acc[directMatch]) acc[directMatch] = [];
+              acc[directMatch].push(questionText);
+              return acc;
+            }
+            console.warn(`No mapping found for Competency: "${competency}"`);
+            return acc; // skip if no match
+          }
 
           if (!acc[compId]) acc[compId] = [];
-          acc[compId].push(item.question);
+          acc[compId].push(questionText);
 
           return acc;
         }, {});
 
-        console.log(grouped);
+        console.log('Grouped questions by Competency:', grouped);
         setQuestionsData(grouped);
       })
       .catch((error) => {
@@ -131,10 +158,10 @@ const Dashboard = () => {
   const getBandData = () => {
     const userData = localStorage.getItem("user");
     if (!userData) return;
-    
+
     const parsedUser = JSON.parse(userData);
     const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
-    
+
     axios
       .get(`http://localhost:8000/employeeData/${employeeId}`, {
         headers: {
@@ -156,10 +183,10 @@ const Dashboard = () => {
   const getAssessmentHistory = () => {
     const userData = localStorage.getItem("user");
     if (!userData) return;
-    
+
     const parsedUser = JSON.parse(userData);
     const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
-    
+
     axios
       .get(`http://localhost:8000/assessment/history/${employeeId}`, {
         headers: {
@@ -170,7 +197,7 @@ const Dashboard = () => {
       .then((response) => {
         if (response.data && response.data.history) {
           setAssessmentHistory(response.data.history);
-          
+
           // Update assessment status based on history
           const currentBandHistory = response.data.history.find(h => h.band === currentBand);
           if (currentBandHistory) {
@@ -191,6 +218,36 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    // Check server start time to detect server restarts
+    const checkServerRestart = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/server/start-time', {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          }
+        });
+
+        const serverStartTime = response.data.start_time;
+        const storedStartTime = localStorage.getItem('serverStartTime');
+
+        // If server start time changed, server was restarted - clear assessment localStorage
+        if (storedStartTime && parseFloat(storedStartTime) !== serverStartTime) {
+          console.log('Server restarted detected, clearing assessment localStorage');
+          localStorage.removeItem('assessmentProgress');
+          localStorage.removeItem('completedCategories');
+          // Keep user and assessmentData for history
+        }
+
+        // Store current server start time
+        localStorage.setItem('serverStartTime', serverStartTime.toString());
+      } catch (error) {
+        console.error('Error checking server start time:', error);
+        // Continue anyway - don't block the app
+      }
+    };
+
+    checkServerRestart();
     getBandData();
     // Also load history on initial load
     const userData = localStorage.getItem("user");
@@ -231,18 +288,18 @@ const Dashboard = () => {
 
     // Load assessment data from localStorage
     const assessmentData = localStorage.getItem("assessmentData");
-    console.log("assesmentData",assessmentData)
+    console.log("assesmentData", assessmentData)
     // if (assessmentData) {
     //   const data = JSON.parse(assessmentData);
     //   setAssessmentStatus(data.status || "Not Taken");
-      // if (data.completedDate) {
-      //   setCompletedDate(new Date(data.completedDate));
-      // }
+    // if (data.completedDate) {
+    //   setCompletedDate(new Date(data.completedDate));
+    // }
     // }
 
     // Check if there's an in-progress assessment
     const progress = localStorage.getItem("assessmentProgress");
-    console.log("progress",progress)
+    console.log("progress", progress)
     let progressMap = {};
     if (progress) {
       setAssessmentStatus("In Progress");
@@ -414,7 +471,7 @@ const Dashboard = () => {
     // Find the category index for this competency
     const categoryIndex = COMPETENCIES.findIndex(c => c.id === competencyId);
     if (categoryIndex === -1) return false;
-    
+
     // Check if it's completed AND API synced
     return isCategoryCompletedAndSynced(categoryIndex);
   };
@@ -424,12 +481,12 @@ const Dashboard = () => {
     if (isAssessmentOnCooldown()) {
       return false;
     }
-    
+
     // First card (order 1) is always unlocked (if not on cooldown)
     if (competency.order === 1) {
       return true;
     }
-    
+
     // For other cards, check if the previous card is completed AND API synced
     const previousCompetency = COMPETENCIES.find(
       (c) => c.order === competency.order - 1
@@ -437,7 +494,7 @@ const Dashboard = () => {
     if (previousCompetency) {
       return isCompleted(previousCompetency.id);
     }
-    
+
     return false;
   };
 
@@ -458,7 +515,7 @@ const Dashboard = () => {
     }
     return true;
   };
-  
+
   // Check if assessment is completed and on cooldown
   const isAssessmentOnCooldown = () => {
     if (assessmentStatus === "completed" && completedDate) {
@@ -473,11 +530,6 @@ const Dashboard = () => {
         {/* Header */}
         <div className="dashboard-header mb-4">
           <div className="d-flex align-items-center">
-            <ArrowLeft
-              className="header-icon"
-              onClick={() => window.history.back()}
-              style={{ cursor: "pointer", marginRight: "16px" }}
-            />
             <div>
               <h1 className="dashboard-title">Employee Dashboard</h1>
               <p className="dashboard-subtitle">Welcome back, {userName}</p>
@@ -485,11 +537,6 @@ const Dashboard = () => {
           </div>
           <div className="d-flex align-items-center">
             <div className="band-badge">{currentBand}</div>
-            <LogOut
-              className="header-icon"
-              onClick={handleLogout}
-              style={{ cursor: "pointer", marginLeft: "16px" }}
-            />
           </div>
         </div>
 
@@ -515,8 +562,8 @@ const Dashboard = () => {
                     {assessmentStatus === "completed"
                       ? "Completed"
                       : assessmentStatus === "In Progress"
-                      ? "In Progress"
-                      : "Not Taken"}
+                        ? "In Progress"
+                        : "Not Taken"}
                   </p>
                   {assessmentStatus === "completed" ? (
                     <CheckCircle2
@@ -581,15 +628,24 @@ const Dashboard = () => {
                       {getDaysUntilNextAssessment()} day{getDaysUntilNextAssessment() !== 1 ? 's' : ''}
                     </p>
                     {completedDate && (
-                      <p
-                        className="mb-0 mt-1"
-                        style={{
-                          fontSize: "12px",
-                          color: "#666",
-                        }}
-                      >
-                        Completed on {completedDate.toLocaleDateString()}
-                      </p>
+                      <>
+                        <p
+                          className="mb-0 mt-1"
+                          style={{
+                            fontSize: "12px",
+                            color: "#666",
+                          }}
+                        >
+                          {/* Completed on {completedDate.toLocaleDateString()} */}
+                        </p>
+                        <p className="mb-0 mt-1"
+                          style={{
+                            fontSize: "12px",
+                            color: "#666",
+                          }}>
+                          Next Assessment on {dateFns.addDays(completedDate, 45).toLocaleDateString()}
+                        </p>
+                      </>
                     )}
                   </div>
                 </div>
@@ -625,9 +681,8 @@ const Dashboard = () => {
                 return (
                   <Card
                     key={competency.id}
-                    className={`card-base competency-card ${
-                      !unlocked ? "competency-locked" : ""
-                    }`}
+                    className={`card-base competency-card ${!unlocked ? "competency-locked" : ""
+                      }`}
                     onClick={() => handleCompetencyClick(competency)}
                     style={{
                       cursor: unlocked ? "pointer" : "not-allowed",
@@ -647,7 +702,7 @@ const Dashboard = () => {
                           }}
                         />
                         {completed && unlocked && (
-                          <CheckCircle2 
+                          <CheckCircle2
                             className="competency-completed-badge"
                             style={{
                               position: 'absolute',
@@ -669,7 +724,7 @@ const Dashboard = () => {
 
                       {/* ✅ Use ACTUAL QUESTION COUNT */}
                       <p className="competency-questions">
-                        {questionsData[competency.id]?.length || 0} questions
+                        {questionsData[competency.id]?.length || competency.questions || 0} questions
                       </p>
 
                       {progress > 0 && (
@@ -751,114 +806,292 @@ const Dashboard = () => {
                 {assessmentHistory.map((assessment, index) => {
                   const isExpanded = expandedHistory[index];
                   const hasSections = assessment.sections && assessment.sections.length > 0;
-                  
+
                   return (
-                    <div key={index} className="history-item" style={{ marginBottom: '20px', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '15px' }}>
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div style={{ flex: 1 }}>
-                          <strong>Band {assessment.band} Assessment</strong>
-                          <p className="mb-0 text-muted">
-                            {assessment.status === "Completed" ? (
-                              <>
+                    <div key={index} className="rounded border border-muted p-4 shadow-md flex flex-col w-full" >
+                      <div className="mb-3">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div style={{ flex: 1 }}>
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                              <strong style={{ fontSize: '18px', color: '#333' }}>
+                                Band {assessment.band} Assessment
+                              </strong>
+                              {assessment.status === "Completed" && (
+                                <span className="badge bg-success" style={{ fontSize: '12px' }}>
+                                  Completed
+                                </span>
+                              )}
+                              {assessment.status === "In Progress" && (
+                                <span className="badge bg-warning text-dark" style={{ fontSize: '12px' }}>
+                                  In Progress
+                                </span>
+                              )}
+                            </div>
+                            {assessment.status === "Completed" && assessment.completed_at && (
+                              <p className="mb-1 text-muted" style={{ fontSize: '14px' }}>
+                                <Clock size={14} style={{ marginRight: '4px', display: 'inline' }} />
                                 Completed on{" "}
-                                {assessment.completed_at
-                                  ? new Date(assessment.completed_at).toLocaleDateString()
-                                  : "N/A"}
-                              </>
-                            ) : (
-                              "In Progress"
+                                {new Date(assessment.completed_at).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })}
+                              </p>
                             )}
-                          </p>
-                          {assessment.status === "Completed" && assessment.category_scores && (
+                            {assessment.status === "Completed" && assessment.completed_at && (
+                              <p className="mb-0 text-muted" style={{ fontSize: '14px' }}>
+                                <Clock size={14} style={{ marginRight: '4px', display: 'inline' }} />
+                                Next Assessment On:{" "}
+                                {(() => {
+                                  const completedDate = new Date(assessment.completed_at);
+                                  const nextDate = new Date(completedDate);
+                                  nextDate.setDate(nextDate.getDate() + 45);
+                                  return nextDate.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  });
+                                })()}
+                              </p>
+                            )}
+                            {assessment.status === "In Progress" && (
+                              <p className="mb-0 text-muted" style={{ fontSize: '14px' }}>
+                                Assessment in progress
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-end" style={{ minWidth: '120px' }}>
+                            {assessment.status === "Completed" && (
+                              <div>
+                                <div className="score" style={{
+                                  fontSize: '28px',
+                                  fontWeight: 700,
+                                  color: '#4a90e2',
+                                  lineHeight: '1.2'
+                                }}>
+                                  {assessment.total_score?.toFixed(1) || 0}%
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                  Overall Score
+                                </div>
+                              </div>
+                            )}
+                            {assessment.status === "In Progress" && (
+                              <div className="status" style={{ color: "#ff9800", fontWeight: 600 }}>
+                                In Progress
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section-wise Scores - Below Overall Score */}
+                      {assessment.status === "Completed" && assessment.category_scores && assessment.category_scores.length > 0 && (
+                        <div className="mt-3" style={{
+                          borderTop: '1px solid #e0e0e0',
+                          paddingTop: '15px'
+                        }}>
+                          <div className="d-flex justify-content-between align-items-center mb-2">
+                            <h6 style={{
+                              margin: 0,
+                              fontSize: '16px',
+                              fontWeight: 600,
+                              color: '#333'
+                            }}>
+                              Section-wise Scores
+                            </h6>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              onClick={() => setExpandedScores(prev => ({
+                                ...prev,
+                                [index]: !prev[index]
+                              }))}
+                              style={{
+                                padding: 0,
+                                textDecoration: 'none',
+                                color: '#4a90e2',
+                                fontWeight: 500,
+                                fontSize: '13px'
+                              }}
+                            >
+                              {expandedScores[index] ? '▼ Hide' : '▶ Show'} Scores
+                            </Button>
+                          </div>
+
+                          {expandedScores[index] && (
                             <div className="mt-2">
-                              <small className="text-muted">
-                                Categories: {assessment.category_scores.length} | 
-                                Total Score: {assessment.total_score?.toFixed(1) || 0}%
-                              </small>
+                              {assessment.category_scores.map((categoryScore, catIndex) => {
+                                const score = typeof categoryScore === 'object'
+                                  ? categoryScore.score
+                                  : categoryScore;
+                                const categoryName = typeof categoryScore === 'object'
+                                  ? categoryScore.category
+                                  : `Category ${catIndex + 1}`;
+
+                                return (
+                                  <div key={catIndex} style={{
+                                    marginBottom: '12px',
+                                    padding: '12px',
+                                    backgroundColor: '#f8f9fa',
+                                    borderRadius: '6px',
+                                    border: '1px solid #e0e0e0'
+                                  }}>
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                      <span style={{
+                                        fontSize: '14px',
+                                        fontWeight: 500,
+                                        color: '#333',
+                                        flex: 1
+                                      }}>
+                                        {categoryName}
+                                      </span>
+                                      <span style={{
+                                        fontSize: '16px',
+                                        fontWeight: 700,
+                                        color: score >= 75 ? '#28a745' : score >= 50 ? '#ffc107' : '#dc3545',
+                                        minWidth: '50px',
+                                        textAlign: 'right'
+                                      }}>
+                                        {parseFloat(score).toFixed(1)}%
+                                      </span>
+                                    </div>
+                                    <ProgressBar
+                                      now={parseFloat(score)}
+                                      style={{ height: '8px' }}
+                                      variant={
+                                        score >= 75 ? 'success' :
+                                          score >= 50 ? 'warning' :
+                                            'danger'
+                                      }
+                                    />
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
-                    <div className="text-end">
-                      {assessment.status === "Completed" && (
-                        <div className="score">
-                          {assessment.total_score?.toFixed(1) || 0}%
-                        </div>
                       )}
-                      {assessment.status === "In Progress" && (
-                        <div className="status" style={{ color: "#ff9800" }}>
-                          In Progress
-                        </div>
-                      )}
-                    </div>
-                      </div>
-                      
+
                       {/* Expandable Questions and Answers Section */}
                       {hasSections && (
-                        <div className="mt-3">
-                          <Button
-                            variant="link"
-                            onClick={() => setExpandedHistory(prev => ({
-                              ...prev,
-                              [index]: !prev[index]
-                            }))}
-                            style={{ 
-                              padding: 0, 
-                              textDecoration: 'none',
-                              color: '#4a90e2',
-                              fontWeight: 500
-                            }}
-                          >
-                            {isExpanded ? '▼ Hide Questions & Answers' : '▶ View Questions & Answers'}
-                          </Button>
-                          
+                        <div className="mt-3" style={{
+                          borderTop: '1px solid #e0e0e0',
+                          paddingTop: '15px',
+
+                        }}>
+                          <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center"
+                          }}>
+
+                            <h6 className="font-semibold text-xl m-0">Assessment Review</h6>
+                            <Button
+                              variant="link"
+                              onClick={() => setExpandedHistory(prev => ({
+                                ...prev,
+                                [index]: !prev[index]
+                              }))}
+                              style={{
+                                padding: 0,
+                                textDecoration: 'none',
+                                color: '#4a90e2',
+                                fontWeight: 500,
+                                fontSize: "13px",
+                              }}
+                            >
+                              {isExpanded ? '▼ Hide Questions & Answers' : '▶ View Questions & Answers'}
+                            </Button>
+                          </div>
+
+
+
                           {isExpanded && (
-                            <div className="mt-3" style={{ 
-                              backgroundColor: '#f9f9f9', 
-                              padding: '15px', 
+                            <div className="mt-3" style={{
+                              backgroundColor: '#f9f9f9',
+                              padding: '15px',
                               borderRadius: '8px',
                               maxHeight: '600px',
                               overflowY: 'auto'
                             }}>
-                              {assessment.sections.map((section, sectionIndex) => (
-                                <div key={sectionIndex} className="mb-4" style={{ 
-                                  borderBottom: sectionIndex < assessment.sections.length - 1 ? '2px solid #e0e0e0' : 'none',
-                                  paddingBottom: sectionIndex < assessment.sections.length - 1 ? '15px' : '0'
-                                }}>
-                                  <h6 style={{ 
-                                    color: '#333', 
-                                    marginBottom: '10px',
-                                    fontWeight: 600
+                              {assessment.sections.map((section, sectionIndex) => {
+                                // Find matching category score
+                                const categoryScore = assessment.category_scores?.find(
+                                  cs => {
+                                    const catName = typeof cs === 'object' ? cs.category : null;
+                                    return catName === section.category ||
+                                      section.category.includes(catName) ||
+                                      catName?.includes(section.category);
+                                  }
+                                );
+                                const sectionScore = categoryScore
+                                  ? (typeof categoryScore === 'object' ? categoryScore.score : categoryScore)
+                                  : null;
+
+                                return (
+                                  <div key={sectionIndex} className="mb-4" style={{
+                                    borderBottom: sectionIndex < assessment.sections.length - 1 ? '2px solid #e0e0e0' : 'none',
+                                    paddingBottom: sectionIndex < assessment.sections.length - 1 ? '15px' : '0'
                                   }}>
-                                    {section.category}
-                                  </h6>
-                                  {section.questions && section.questions.map((qa, qaIndex) => (
-                                    <div key={qaIndex} className="mb-3" style={{
-                                      padding: '10px',
-                                      backgroundColor: 'white',
-                                      borderRadius: '4px',
-                                      marginBottom: '8px'
-                                    }}>
-                                      <div style={{ fontWeight: 500, marginBottom: '5px', color: '#555' }}>
-                                        Q{qaIndex + 1}: {qa.question}
-                                      </div>
-                                      <div style={{ 
-                                        color: '#4a90e2', 
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                      <h6 style={{
+                                        color: '#333',
+                                        margin: 0,
                                         fontWeight: 600,
-                                        fontSize: '14px'
+                                        fontSize: '16px'
                                       }}>
-                                        Answer: {
-                                          qa.answer_value === '5' ? 'Always' :
-                                          qa.answer_value === '4' ? 'Often' :
-                                          qa.answer_value === '3' ? 'Sometimes' :
-                                          qa.answer_value === '2' ? 'Rarely' :
-                                          qa.answer_value === '1' ? 'Not yet' :
-                                          qa.answer_value
-                                        } ({qa.answer_value})
-                                      </div>
+                                        {section.category}
+                                      </h6>
+                                      {sectionScore !== null && (
+                                        <div style={{
+                                          padding: '6px 12px',
+                                          backgroundColor: sectionScore >= 75 ? '#d4edda' :
+                                            sectionScore >= 50 ? '#fff3cd' : '#f8d7da',
+                                          borderRadius: '20px',
+                                          border: `1px solid ${sectionScore >= 75 ? '#c3e6cb' :
+                                            sectionScore >= 50 ? '#ffeaa7' : '#f5c6cb'}`
+                                        }}>
+                                          <span style={{
+                                            fontSize: '14px',
+                                            fontWeight: 700,
+                                            color: sectionScore >= 75 ? '#155724' :
+                                              sectionScore >= 50 ? '#856404' : '#721c24'
+                                          }}>
+                                            {parseFloat(sectionScore).toFixed(1)}%
+                                          </span>
+                                        </div>
+                                      )}
                                     </div>
-                                  ))}
-                                </div>
-                              ))}
+                                    {section.questions && section.questions.map((qa, qaIndex) => (
+                                      <div key={qaIndex} className="mb-3" style={{
+                                        padding: '10px',
+                                        backgroundColor: 'white',
+                                        borderRadius: '4px',
+                                        marginBottom: '8px'
+                                      }}>
+                                        <div style={{ fontWeight: 500, marginBottom: '5px', color: '#555' }}>
+                                          Q{qaIndex + 1}: {qa.question}
+                                        </div>
+                                        <div style={{
+                                          color: '#4a90e2',
+                                          fontWeight: 600,
+                                          fontSize: '14px'
+                                        }}>
+                                          Answer: {
+                                            qa.answer_value === '5' ? 'Always' :
+                                              qa.answer_value === '4' ? 'Often' :
+                                                qa.answer_value === '3' ? 'Sometimes' :
+                                                  qa.answer_value === '2' ? 'Rarely' :
+                                                    qa.answer_value === '1' ? 'Not yet' :
+                                                      qa.answer_value
+                                          } ({qa.answer_value})
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                         </div>

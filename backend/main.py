@@ -7,8 +7,12 @@ from typing import List
 import psycopg2
 import random
 import json
+import time
 
 app = FastAPI()
+
+# Store server start time
+SERVER_START_TIME = time.time()
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,6 +32,11 @@ class SectionSubmitPayload(BaseModel):
     category: str
     answers: List[SectionAnswer]
 
+@app.get("/server/start-time")
+async def get_server_start_time():
+    """Return server start time to help client detect server restarts"""
+    return {"start_time": SERVER_START_TIME}
+
 @app.get("/employeeData/{employee_id}")
 async def get_SailsEmployeeData(employee_id: str,db_conn=Depends(get_db_conn)):
     try:
@@ -41,129 +50,30 @@ async def get_SailsEmployeeData(employee_id: str,db_conn=Depends(get_db_conn)):
 
 
 @app.get("/bands/{band}/random-questions")
-def get_random_questions(band: str, db_conn=Depends(get_db_conn)):
-
+async def get_random_questions(band: str, db_conn=Depends(get_db_conn)):
     table_name = f'"{band}"'
-
     try:
         with db_conn as conn:
             cur = conn.cursor(cursor_factory=RealDictCursor)
-
-            cur.execute("""
-                SELECT EXISTS (
-                    SELECT FROM information_schema.tables
-                    WHERE LOWER(table_name) = LOWER(%s)
-                );
-            """, (band,))
-
-            exists = cur.fetchone()["exists"]
-
-            if not exists:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Band table '{band}' does not exist."
-                )
-
-            cur.execute(f'SELECT DISTINCT "Category" FROM {table_name};')
-            categories = [row["Category"] for row in cur.fetchall()]
-
-            if not categories:
-                raise HTTPException(
-                    status_code=404,
-                    detail="No categories found for this band"
-                )
-
-            final_questions = []
-
-            for category in categories:
-                cur.execute(
-                    f'SELECT "Category", "Question" FROM {table_name} WHERE "Category" = %s;',
-                    (category,)
-                )
-                rows = cur.fetchall()
-
-                if rows:
-                    selected = random.sample(rows, min(25, len(rows)))
-
-                    for r in selected:
-                        final_questions.append({
-                            "band": band,
-                            "category": r["Category"],
-                            "question": r["Question"]
-                        })
-
-        random.shuffle(final_questions)
-
+            
+            cur.execute(f'SELECT DISTINCT "Sub_Section" FROM {table_name};')
+            categories = [row["Sub_Section"] for row in cur.fetchall()]
+            
+            cur.execute(f"""SELECT "Band","Competency","Sub_Section","Question" FROM {table_name};""")
+            bandData = cur.fetchall()
+            
+            for row in bandData:
+                if row.get("Question"):
+                    row["Question"] = row["Question"].strip().strip('"')
+        
         return {
             "band": band,
-            "categories_found": len(categories),
-            "total_questions": len(final_questions),
-            "questions": final_questions
+            "total_questions": len(bandData),
+            "categories": len(categories),
+            "questions": bandData
         }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
-
-@app.get("/bands/{band}/category/{category}")
-def get_questions_by_category(band: str, category: str, db_conn=Depends(get_db_conn)):
-
-    table_name = f'"{band}"'  # Example: "band2A"
-
-    try:
-        with db_conn as conn:
-            cur = conn.cursor(cursor_factory=RealDictCursor)
-
-            # Check if table exists
-            cur.execute("""
-                SELECT EXISTS (
-                    SELECT FROM information_schema.tables
-                    WHERE LOWER(table_name) = LOWER(%s)
-                );
-            """, (band,))
-
-            exists = cur.fetchone()["exists"]
-
-            if not exists:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Band table '{band}' does not exist"
-                )
-
-            # Fetch questions for specific category
-            cur.execute(
-                f'SELECT "Category", "Question" FROM {table_name} WHERE "Category" = %s;',
-                (category,)
-            )
-
-            rows = cur.fetchall()
-
-            if not rows:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"No questions found for category '{category}' in band '{band}'"
-                )
-
-            # Select max 25
-            selected = random.sample(rows, min(25, len(rows)))
-
-            # Format results
-            final_questions = [
-                {
-                    "question": r["Question"]
-                }
-                for r in selected
-            ]
-
-        return {
-            "band": band,
-            "category": category,
-            "total_questions": len(final_questions),
-            "questions": final_questions
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+    except psycopg2.Error as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 @app.post("/assessment/section/submit")
@@ -210,10 +120,12 @@ def submit_section_answers(data: SectionSubmitPayload, db_conn=Depends(get_db_co
             band_name = data.band if data.band.startswith('band') else f'band{data.band}'
             table_name = f'"{band_name}"'
             
-            # Get total expected categories
-            cur.execute(f'SELECT COUNT(DISTINCT "Category") AS c FROM {table_name};')
-            category_count = cur.fetchone()["c"]
-            expected_questions = category_count * 25  # 25 per category
+            # Get total expected questions
+            # Count distinct competencies (each competency has 25 questions)
+            # The frontend shows 5 competencies, each with 25 questions = 125 total questions
+            cur.execute(f'SELECT COUNT(DISTINCT "Competency") AS c FROM {table_name};')
+            competency_count = cur.fetchone()["c"]
+            expected_questions = competency_count * 25  # 25 questions per competency
 
             # Count total answered questions for this band
             cur.execute("""
@@ -225,58 +137,74 @@ def submit_section_answers(data: SectionSubmitPayload, db_conn=Depends(get_db_co
 
             is_completed = answered_count >= expected_questions
 
+            # Calculate section-wise score for the current category
+            current_category_score = 0
+            current_category_total = 0
+            for ans in data.answers:
+                answer_value = int(ans.answer_value) if ans.answer_value.isdigit() else 0
+                current_category_score += answer_value
+                current_category_total += 1
+            
+            current_category_percentage = (current_category_score / (current_category_total * 5) * 100) if current_category_total > 0 else 0
+
+            # Calculate all category scores (for overall score calculation)
+            cur.execute("""
+                SELECT category, question, answer_value
+                FROM assessment_answers
+                WHERE employee_id=%s AND band=%s
+                ORDER BY category;
+            """, (data.employee_id, data.band))
+            all_answers = cur.fetchall()
+
+            # Calculate category scores
+            category_scores_dict = {}
+            category_totals = {}
+
+            for answer in all_answers:
+                cat = answer["category"]
+                answer_value = int(answer["answer_value"]) if answer["answer_value"].isdigit() else 0
+                
+                if cat not in category_scores_dict:
+                    category_scores_dict[cat] = 0
+                    category_totals[cat] = 0
+                
+                category_scores_dict[cat] += answer_value
+                category_totals[cat] += 1
+
+            # Calculate percentage scores per category
+            category_scores_list = []
+            total_score_sum = 0
+            total_max_score = 0
+
+            for cat, score in category_scores_dict.items():
+                max_score = category_totals[cat] * 5  # Max score per question is 5
+                percentage = (score / max_score * 100) if max_score > 0 else 0
+                category_scores_list.append({
+                    "category": cat,
+                    "score": round(percentage, 2)
+                })
+                total_score_sum += score
+                total_max_score += max_score
+
+            # Calculate overall total score percentage
+            overall_score = (total_score_sum / total_max_score * 100) if total_max_score > 0 else 0
+
             response_data = {
                 "message": "Section submitted successfully",
                 "questions_saved": len(data.answers),
-                "is_completed": is_completed
+                "is_completed": is_completed,
+                "section_score": round(current_category_score, 2),
+                "section_percentage": round(current_category_percentage, 2),
+                "category_scores": category_scores_list,
+                "overall_score": round(overall_score, 2)
             }
 
-            # If assessment is completed, calculate scores and move to assessment_results
+            # If assessment is completed, move to assessment_results
             if is_completed:
-                # Fetch all answers for this band
-                cur.execute("""
-                    SELECT category, question, answer_value
-                    FROM assessment_answers
-                    WHERE employee_id=%s AND band=%s
-                    ORDER BY category;
-                """, (data.employee_id, data.band))
-                all_answers = cur.fetchall()
 
-                # Calculate category scores
-                category_scores_dict = {}
-                category_totals = {}
-
-                for answer in all_answers:
-                    cat = answer["category"]
-                    answer_value = int(answer["answer_value"]) if answer["answer_value"].isdigit() else 0
-                    
-                    if cat not in category_scores_dict:
-                        category_scores_dict[cat] = 0
-                        category_totals[cat] = 0
-                    
-                    category_scores_dict[cat] += answer_value
-                    category_totals[cat] += 1
-
-                # Calculate percentage scores per category
-                category_scores_list = []
-                total_score_sum = 0
-                total_max_score = 0
-
-                for cat, score in category_scores_dict.items():
-                    max_score = category_totals[cat] * 5  # Max score per question is 5
-                    percentage = (score / max_score * 100) if max_score > 0 else 0
-                    category_scores_list.append({
-                        "category": cat,
-                        "score": round(percentage, 2)
-                    })
-                    total_score_sum += score
-                    total_max_score += max_score
-
-                # Calculate overall total score percentage
-                total_score = (total_score_sum / total_max_score * 100) if total_max_score > 0 else 0
-
-                # Convert category_scores to JSON string for database
+                # Convert category_scores to JSON string for database (use already calculated scores)
                 category_scores_json = json.dumps(category_scores_list)
+                total_score = overall_score
                 
                 # Store all questions and answers as JSON for history viewing
                 # Group answers by category for storage
@@ -328,8 +256,11 @@ def submit_section_answers(data: SectionSubmitPayload, db_conn=Depends(get_db_co
                     WHERE employee_id=%s AND band=%s;
                 """, (data.employee_id, data.band))
 
+                # Update response with final scores (already included above)
                 response_data["total_score"] = round(total_score, 2)
-                response_data["category_scores"] = category_scores_list
+                
+                # Clear localStorage flag for completed assessment
+                response_data["clear_local_storage"] = True
 
         return response_data
 
@@ -507,29 +438,20 @@ def get_category_info(category: str, employee_id: str, db_conn=Depends(get_db_co
             band_name = band if band.startswith('band') else f'band{band}'
             table_name = f'"{band_name}"'
 
-            # Map frontend category names to database category names
-            category_mapping = {
-                "Communication": "Self evaluation Communication",
-                "Adaptability & Learning Agility": "Self evalauation Adaptability & Learning Agility",
-                "Teamwork & Collaboration": "Self evaluation Teamwork & Collaboration",
-                "Accountability & Ownership": "Self evalauation Accountability & Ownership",
-                "Problem Solving & Critical Thinking": "Self evaluation Problem Solving & Critical Thinking"
-            }
-            
-            # Use mapped category name or original if not in mapping
-            db_category = category_mapping.get(category, category)
-
-            # Get all questions for this category from the band table
-            cur.execute(f'SELECT "Question" FROM {table_name} WHERE "Category" = %s;', (db_category,))
+            # The category parameter is the competency name (e.g., "Communication", "Adaptability & Learning Agility")
+            # Query by Competency field in the band table
+            # Get all questions for this competency from the band table
+            cur.execute(f'SELECT "Question" FROM {table_name} WHERE "Competency" = %s;', (category,))
             all_questions = [row["Question"] for row in cur.fetchall()]
 
-            # Get user's answers for this category (check both original and mapped category names)
+            # Get user's answers for this competency
+            # The category field in assessment_answers stores the competency name
             cur.execute("""
                 SELECT question, answer_value
                 FROM assessment_answers
-                WHERE (category = %s OR category = %s)
+                WHERE category = %s
                   AND employee_id = %s;
-            """, (category, db_category, employee_id))
+            """, (category, employee_id))
 
             answers_dict = {row["question"]: row["answer_value"] for row in cur.fetchall()}
 

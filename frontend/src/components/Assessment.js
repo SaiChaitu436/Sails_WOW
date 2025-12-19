@@ -137,10 +137,65 @@ const Assessment = () => {
     const categoryName = CATEGORIES[categoryIndex];
     const questions = questionsData[categoryName] || [];
     
-    // If questions not in state, try to fetch them
+    // If questions not in state, try to fetch them from API
     if (questions.length === 0 && parsedUser) {
-      // Questions will be loaded from Dashboard, but we can also fetch here if needed
-      setCategoryQuestions([]);
+      // Fetch questions from API if not available in state
+      const fetchQuestionsForCategory = async () => {
+        try {
+          const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
+          // Get band from localStorage or use default
+          const assessmentData = localStorage.getItem('assessmentData');
+          const band = assessmentData ? JSON.parse(assessmentData).currentBand : '2A';
+          const bandName = band.startsWith('band') ? band : `band${band}`;
+          
+          const response = await axios.get(
+            `http://localhost:8000/bands/${bandName}/random-questions`,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              }
+            }
+          );
+          
+          const data = response.data.questions;
+          // Map Competency values from database to frontend competency IDs
+          const competencyMapping = {
+            "Communication": "Communication",
+            "Adaptability & Learning Agility": "Adaptability & Learning Agility",
+            "Teamwork & Collaboration": "Teamwork & Collaboration",
+            "Accountability & Ownership": "Accountability & Ownership",
+            "Problem Solving & Critical Thinking": "Problem Solving & Critical Thinking",
+          };
+          
+          const grouped = data.reduce((acc, item) => {
+            // Use Competency field from database (case-insensitive matching)
+            const competency = item.Competency || item.competency;
+            const questionText = item.Question || item.question;
+            
+            if (!competency || !questionText) return acc;
+            
+            // Find matching competency ID (case-insensitive)
+            const compId = Object.keys(competencyMapping).find(
+              key => key.toLowerCase() === competency.toLowerCase()
+            ) || competencyMapping[competency];
+            
+            if (!compId) return acc;
+            
+            if (!acc[compId]) acc[compId] = [];
+            acc[compId].push(questionText);
+            return acc;
+          }, {});
+          
+          const categoryQuestions = grouped[categoryName] || [];
+          setCategoryQuestions(categoryQuestions);
+        } catch (error) {
+          console.error('Error fetching questions:', error);
+          setCategoryQuestions([]);
+        }
+      };
+      
+      fetchQuestionsForCategory();
     } else {
       setCategoryQuestions(questions);
     }
@@ -158,12 +213,47 @@ const Assessment = () => {
       }
     }
 
-    // Load previous section answers from API if category is not completed
-    if (parsedUser && categoryName && !isCategoryCompleted(categoryIndex)) {
+    // Load previous section answers from API only if:
+    // 1. Category is not completed AND
+    // 2. Category is not the first one (categoryIndex > 0) - meaning user has progressed past first category
+    // OR there are existing answers in localStorage for this category (meaning user started it before)
+    // For the first category (categoryIndex === 0), only load from API if there are local answers
+    // This prevents calling the wrong API when starting fresh
+    const savedProgressForCheck = localStorage.getItem('assessmentProgress');
+    let hasLocalAnswers = false;
+    if (savedProgressForCheck) {
+      try {
+        const progressData = JSON.parse(savedProgressForCheck);
+        const progressAnswers = progressData.answers || {};
+        hasLocalAnswers = Object.keys(progressAnswers).some(key => key.startsWith(`category-${categoryIndex}-`));
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+    
+    // Only call category API if:
+    // - Category is not completed AND
+    // - (Category is not first OR has local answers)
+    const shouldLoadFromAPI = parsedUser && categoryName && !isCategoryCompleted(categoryIndex) && 
+                              (categoryIndex > 0 || hasLocalAnswers);
+    
+    if (shouldLoadFromAPI) {
       const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
       loadPreviousSectionAnswers(categoryName, employeeId);
     }
   }, [navigate, searchParams, questionsData, isCategoryCompleted]);
+
+  // Update categoryQuestions when questionsData changes
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    const categoryIndex = parseInt(categoryParam) || 0;
+    const categoryName = CATEGORIES[categoryIndex];
+    const questions = questionsData[categoryName] || [];
+    
+    if (questions.length > 0) {
+      setCategoryQuestions(questions);
+    }
+  }, [questionsData, searchParams]);
 
   // Immediate localStorage persistence
   useEffect(() => {
@@ -304,6 +394,14 @@ const Assessment = () => {
         categoryScores: response.data.category_scores || null
       };
       localStorage.setItem('assessmentData', JSON.stringify(assessmentData));
+
+      // Clear localStorage if assessment is completed
+      if (isAssessmentCompleted || response.data.clear_local_storage) {
+        // Clear assessment-related localStorage items
+        localStorage.removeItem('assessmentProgress');
+        localStorage.removeItem('completedCategories');
+        // Keep assessmentData for history display
+      }
 
       // Keep answers for review but mark as submitted
       const progress = JSON.parse(localStorage.getItem('assessmentProgress') || '{}');
@@ -530,7 +628,7 @@ const Assessment = () => {
                     >
                       <div className="likert-option-content">
                         <div className="likert-option-header">
-                          <span className="likert-option-number">{option.value}</span>
+                          <span className="likert-option-bullet">•</span>
                           <span className="likert-option-label">{option.label}</span>
                           {isSelected && <CheckCircle2 className="likert-check-icon" size={20} />}
                         </div>

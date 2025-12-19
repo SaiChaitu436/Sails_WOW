@@ -58,7 +58,7 @@ const CompletionModal = ({ show, onHide, results }) => {
         {results.passed && (
           <div className="next-assessment-info">
             <p className="info-text">
-              <strong>Next Assessment Available:</strong>
+              <strong>Next Assessment On:</strong>
             </p>
             <p className="date-text">
               {nextAssessmentDate.toLocaleDateString('en-US', { 

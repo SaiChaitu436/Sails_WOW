@@ -1,0 +1,12 @@
+PostgresDataIngestion:
+  outputs:
+    dev:
+      dbname: SAILS_WOW
+      host: localhost
+      pass: Saichaitu123
+      port: 5433
+      schema: public
+      threads: 1
+      type: postgres
+      user: postgres
+  target: dev
