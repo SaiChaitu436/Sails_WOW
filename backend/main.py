@@ -5,9 +5,9 @@ from database import get_db_conn
 from pydantic import BaseModel
 from typing import List
 import psycopg2
-import random
 import json
 import time
+import re
 
 app = FastAPI()
 
@@ -31,6 +31,55 @@ class SectionSubmitPayload(BaseModel):
     band: str
     category: str
     answers: List[SectionAnswer]
+
+class ScoreEvaluationRequest(BaseModel):
+    band: str
+    category: str
+    employee_id: str  # Add employee_id to calculate score from database
+
+
+def calculate_category_score(employee_id: str, band: str, category: str, cur) -> float:
+    """
+    Calculate the percentage score for a specific category.
+    Reusable function that calculates score from assessment_answers table.
+    Uses the same logic as the section/submit endpoint.
+    
+    Args:
+        employee_id: Employee ID
+        band: Band name
+        category: Category/Competency name
+        cur: Database cursor
+    
+    Returns:
+        float: Percentage score (0-100)
+    """
+    # Get all answers for this category
+    cur.execute("""
+        SELECT answer_value
+        FROM assessment_answers
+        WHERE employee_id=%s AND band=%s AND category=%s;
+    """, (employee_id, band, category))
+    
+    answers = cur.fetchall()
+    
+    if not answers:
+        return 0.0
+    
+    # Calculate score using the same logic as section/submit
+    total_score = 0
+    total_questions = 0
+    
+    for answer in answers:
+        answer_value = int(answer["answer_value"]) if answer["answer_value"].isdigit() else 0
+        total_score += answer_value
+        total_questions += 1
+    
+    # Calculate percentage (max score per question is 5)
+    max_score = total_questions * 5
+    percentage = (total_score / max_score * 100) if max_score > 0 else 0
+    
+    return round(percentage, 2)
+
 
 @app.get("/server/start-time")
 async def get_server_start_time():
@@ -478,3 +527,78 @@ def get_category_info(category: str, employee_id: str, db_conn=Depends(get_db_co
             status_code=500,
             detail=f"Database error: {str(e)}"
         )
+
+
+def parse_score_range(range_str: str):
+    """Converts range text into numeric bounds."""
+    
+    text = range_str.lower().strip()
+
+    if "below" in text or text.startswith("<"):
+        num = int(re.findall(r"\d+", text)[0])
+        return 0, num - 1
+
+    nums = re.findall(r"\d+", text)
+    if len(nums) == 2:
+        return int(nums[0]), int(nums[1])
+    
+    raise ValueError(f"Invalid range format: {range_str}")
+
+
+@app.post("/assessment/score-evaluation")
+def evaluate_score(data: ScoreEvaluationRequest, db_conn=Depends(get_db_conn)):
+    """
+    Evaluate score for a category by calculating it from assessment_answers.
+    Reuses the same score calculation logic as section/submit endpoint.
+    """
+    band = data.band
+    category = data.category
+    employee_id = data.employee_id
+    
+    try:
+        with db_conn as conn:
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            
+            # Calculate score using the same logic as section/submit endpoint
+            score = calculate_category_score(employee_id, band, category, cur)
+            
+            # Get interpretation rules
+            cur.execute("""
+                SELECT
+                    "Score Range",
+                    "Interpretations",
+                    "Focus Area"
+                FROM interpretations_and_focus_area
+                WHERE "Band"=%s AND "Category"=%s;
+            """, (band, category))
+
+            rules = cur.fetchall()
+
+        if not rules:
+            raise HTTPException(
+                status_code=404,
+                detail="No score rules found for given band and category"
+            )
+
+        # Find matching score range
+        for rule in rules:
+            min_score, max_score = parse_score_range(rule["Score Range"])
+            if min_score <= score <= max_score:
+                return {
+                    "band": band,
+                    "category": category,
+                    "score": score,
+                    "score_range": rule["Score Range"],
+                    "interpretation": rule["Interpretations"].strip('"'),
+                    "focus_area": rule["Focus Area"].strip('"')
+                }
+
+        return {
+            "band": band,
+            "category": category,
+            "score": score,
+            "message": "Score does not match any defined range"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
