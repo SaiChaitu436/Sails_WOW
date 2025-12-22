@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Card, Button, ProgressBar } from "react-bootstrap";
+import { Container, Card, Button, ProgressBar, Modal } from "react-bootstrap";
 import { CheckCircle2, Clock, Lock } from "lucide-react";
 import axios from "axios";
 import "../styles.css";
@@ -81,6 +81,15 @@ const Dashboard = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [expandedHistory, setExpandedHistory] = useState({});
   const [expandedScores, setExpandedScores] = useState({});
+  const [scoreEvaluations, setScoreEvaluations] = useState({}); // Store evaluations by assessment index and category
+  const [loadingEvaluations, setLoadingEvaluations] = useState({}); // Track loading state
+  const [scoreRanges, setScoreRanges] = useState({}); // Store score ranges by band
+  const [loadingScoreRanges, setLoadingScoreRanges] = useState({}); // Track loading state for score ranges
+  const [showScoreRangesModal, setShowScoreRangesModal] = useState(false); // Modal visibility
+  const [modalBand, setModalBand] = useState(null); // Band for which to show score ranges
+  const [modalCategory, setModalCategory] = useState(null); // Category to filter and highlight
+  const [modalScore, setModalScore] = useState(null); // User's score to highlight matching row
+  const [modalAssessmentIndex, setModalAssessmentIndex] = useState(null); // Assessment index for scrolling
 
   const getQuestions = (band, category) => {
     // Ensure band format is correct (add 'band' prefix if not present)
@@ -215,6 +224,220 @@ const Dashboard = () => {
       .catch((error) => {
         console.error("There was an error fetching assessment history!", error);
       });
+  };
+
+  // Fetch score evaluations for all categories in an assessment
+  const fetchScoreEvaluations = async (assessmentIndex, assessment) => {
+    const userData = localStorage.getItem("user");
+    if (!userData) return;
+
+    const parsedUser = JSON.parse(userData);
+    const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
+
+    if (!assessment.category_scores || assessment.category_scores.length === 0) {
+      return;
+    }
+
+    // Fetch evaluation for each category
+    const evaluationPromises = assessment.category_scores.map(async (categoryScore) => {
+      const categoryName = typeof categoryScore === 'object'
+        ? categoryScore.category
+        : categoryScore;
+      const evaluationKey = `${assessmentIndex}-${categoryName}`;
+
+      // Skip if already loaded
+      if (scoreEvaluations[evaluationKey]) {
+        return;
+      }
+
+      // Set loading state
+      setLoadingEvaluations(prev => ({
+        ...prev,
+        [evaluationKey]: true
+      }));
+
+      try {
+        const response = await axios.post(
+          'http://localhost:8000/assessment/score-evaluation',
+          {
+            band: assessment.band,
+            category: categoryName,
+            employee_id: employeeId
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            }
+          }
+        );
+
+        // Store evaluation
+        setScoreEvaluations(prev => ({
+          ...prev,
+          [evaluationKey]: response.data
+        }));
+      } catch (error) {
+        console.error(`Error fetching evaluation for ${categoryName}:`, error);
+        // Store error state (optional - you can show error message if needed)
+        setScoreEvaluations(prev => ({
+          ...prev,
+          [evaluationKey]: { error: 'Failed to load evaluation' }
+        }));
+      } finally {
+        // Clear loading state
+        setLoadingEvaluations(prev => {
+          const newState = { ...prev };
+          delete newState[evaluationKey];
+          return newState;
+        });
+      }
+    });
+
+    // Wait for all evaluations to complete
+    await Promise.all(evaluationPromises);
+  };
+
+  // Fetch score ranges table for a band
+  const fetchScoreRanges = async (band) => {
+    // Skip if already loaded
+    if (scoreRanges[band]) {
+      return;
+    }
+
+    // Set loading state
+    setLoadingScoreRanges(prev => ({
+      ...prev,
+      [band]: true
+    }));
+
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/assessment/score-ranges/${band}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          }
+        }
+      );
+
+      // Store score ranges
+      setScoreRanges(prev => ({
+        ...prev,
+        [band]: response.data.score_ranges
+      }));
+    } catch (error) {
+      console.error(`Error fetching score ranges for band ${band}:`, error);
+      setScoreRanges(prev => ({
+        ...prev,
+        [band]: { error: 'Failed to load score ranges' }
+      }));
+    } finally {
+      // Clear loading state
+      setLoadingScoreRanges(prev => {
+        const newState = { ...prev };
+        delete newState[band];
+        return newState;
+      });
+    }
+  };
+
+  // Handle opening score ranges modal
+  const handleOpenScoreRangesModal = (band, category, score, assessmentIndex) => {
+    setModalBand(band);
+    setModalCategory(category);
+    setModalScore(score);
+    setModalAssessmentIndex(assessmentIndex);
+    setShowScoreRangesModal(true);
+    // Fetch score ranges if not already loaded
+    if (!scoreRanges[band]) {
+      fetchScoreRanges(band);
+    }
+  };
+
+  // Handle closing score ranges modal and scroll to assessment
+  const handleCloseScoreRangesModal = () => {
+    setShowScoreRangesModal(false);
+    setModalBand(null);
+    setModalCategory(null);
+    setModalScore(null);
+    setModalAssessmentIndex(null);
+  };
+
+  // Handle review answers button - scroll to assessment section and expand it
+  const handleReviewAnswers = () => {
+    setShowScoreRangesModal(false);
+    if (modalAssessmentIndex !== null) {
+      // Expand the Assessment Review section
+      setExpandedHistory(prev => ({
+        ...prev,
+        [modalAssessmentIndex]: true
+      }));
+      
+      // Wait a bit for the expansion, then scroll
+      setTimeout(() => {
+        const elementId = `assessment-${modalAssessmentIndex}`;
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          
+          // Scroll to the specific category section within Assessment Review
+          setTimeout(() => {
+            const categorySectionId = `category-${modalAssessmentIndex}-${modalCategory}`;
+            const categoryElement = document.getElementById(categorySectionId);
+            if (categoryElement) {
+              categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Highlight the category section briefly
+              categoryElement.style.transition = 'box-shadow 0.3s ease, background-color 0.3s ease';
+              categoryElement.style.boxShadow = '0 0 20px rgba(74, 144, 226, 0.5)';
+              categoryElement.style.backgroundColor = '#e3f2fd';
+              setTimeout(() => {
+                categoryElement.style.boxShadow = '';
+                categoryElement.style.backgroundColor = '';
+              }, 3000);
+            }
+          }, 500);
+        }
+      }, 100);
+    }
+    setModalBand(null);
+    setModalCategory(null);
+    setModalScore(null);
+    setModalAssessmentIndex(null);
+  };
+
+  // Parse score range string to get min and max values
+  const parseScoreRange = (rangeStr) => {
+    if (!rangeStr) return { min: 0, max: 0 };
+    
+    const text = rangeStr.toLowerCase().trim();
+    
+    // Handle "below X" or "< X" format
+    if (text.includes("below") || text.startsWith("<")) {
+      const num = parseInt(text.match(/\d+/)?.[0] || "0");
+      return { min: 0, max: num - 1 };
+    }
+    
+    // Handle "X-Y" format
+    const nums = text.match(/\d+/g);
+    if (nums && nums.length === 2) {
+      return { min: parseInt(nums[0]), max: parseInt(nums[1]) };
+    }
+    
+    // Handle single number (exact match)
+    if (nums && nums.length === 1) {
+      const num = parseInt(nums[0]);
+      return { min: num, max: num };
+    }
+    
+    return { min: 0, max: 0 };
+  };
+
+  // Check if score falls within a range
+  const isScoreInRange = (score, rangeStr) => {
+    const { min, max } = parseScoreRange(rangeStr);
+    return score >= min && score <= max;
   };
 
   useEffect(() => {
@@ -802,13 +1025,39 @@ const Dashboard = () => {
             {assessmentHistory.length === 0 ? (
               <p className="history-empty">No completed assessments yet</p>
             ) : (
-              <div className="history-list">
+              <div className="history-list" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                gap: '20px',
+                width: '100%'
+              }}>
                 {assessmentHistory.map((assessment, index) => {
                   const isExpanded = expandedHistory[index];
                   const hasSections = assessment.sections && assessment.sections.length > 0;
 
+                  // Determine card color based on status
+                  let cardBorderColor = '#e0e0e0';
+                  let cardBgColor = '#ffffff';
+                  if (assessment.status === "Completed") {
+                    cardBorderColor = '#28a745';
+                    cardBgColor = '#f8fff9';
+                  } else if (assessment.status === "In Progress") {
+                    cardBorderColor = '#ffc107';
+                    cardBgColor = '#fffef8';
+                  }
+
                   return (
-                    <div key={index} className="rounded border border-muted p-4 shadow-md flex flex-col w-full" >
+                    <div 
+                      key={index} 
+                      id={`assessment-${index}`}
+                      className="rounded border p-4 shadow-md flex flex-col w-full" 
+                      style={{
+                        borderColor: cardBorderColor,
+                        backgroundColor: cardBgColor,
+                        borderWidth: '2px',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
                       <div className="mb-3">
                         <div className="d-flex justify-content-between align-items-start mb-2">
                           <div style={{ flex: 1 }}>
@@ -860,20 +1109,40 @@ const Dashboard = () => {
                               </p>
                             )}
                           </div>
-                          <div className="text-end" style={{ minWidth: '120px' }}>
+                          <div className="text-end" style={{ minWidth: '150px' }}>
                             {assessment.status === "Completed" && (
                               <div>
                                 <div className="score" style={{
-                                  fontSize: '28px',
+                                  fontSize: '32px',
                                   fontWeight: 700,
                                   color: '#4a90e2',
                                   lineHeight: '1.2'
                                 }}>
                                   {assessment.total_score?.toFixed(1) || 0}%
                                 </div>
-                                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                                  Overall Score
+                                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px', marginBottom: '4px' }}>
+                                  Overall Percentage
                                 </div>
+                                {(() => {
+                                  // Calculate total points (5 competencies * 25 questions * 5 max points = 625 max)
+                                  let totalPoints = 0;
+                                  let maxTotalPoints = 0;
+                                  if (assessment.category_scores) {
+                                    assessment.category_scores.forEach(catScore => {
+                                      const catScoreValue = typeof catScore === 'object' ? catScore.score : catScore;
+                                      const questionsPerCategory = 25;
+                                      const maxPointsPerCategory = questionsPerCategory * 5;
+                                      const actualPoints = Math.round((catScoreValue / 100) * maxPointsPerCategory);
+                                      totalPoints += actualPoints;
+                                      maxTotalPoints += maxPointsPerCategory;
+                                    });
+                                  }
+                                  return (
+                                    <div style={{ fontSize: '13px', color: '#666', fontWeight: 500 }}>
+                                      Total Marks: {totalPoints}/{maxTotalPoints}
+                                    </div>
+                                  );
+                                })()}
                               </div>
                             )}
                             {assessment.status === "In Progress" && (
@@ -903,10 +1172,18 @@ const Dashboard = () => {
                             <Button
                               variant="link"
                               size="sm"
-                              onClick={() => setExpandedScores(prev => ({
-                                ...prev,
-                                [index]: !prev[index]
-                              }))}
+                              onClick={() => {
+                                const isExpanding = !expandedScores[index];
+                                setExpandedScores(prev => ({
+                                  ...prev,
+                                  [index]: isExpanding
+                                }));
+                                
+                                // Fetch evaluations when expanding
+                                if (isExpanding && assessment.status === "Completed" && assessment.category_scores) {
+                                  fetchScoreEvaluations(index, assessment);
+                                }
+                              }}
                               style={{
                                 padding: 0,
                                 textDecoration: 'none',
@@ -928,43 +1205,117 @@ const Dashboard = () => {
                                 const categoryName = typeof categoryScore === 'object'
                                   ? categoryScore.category
                                   : `Category ${catIndex + 1}`;
+                                
+                                // Get evaluation for this category
+                                const evaluationKey = `${index}-${categoryName}`;
+                                const evaluation = scoreEvaluations[evaluationKey];
+                                const isLoading = loadingEvaluations[evaluationKey];
+
+                                // Calculate points (assuming 25 questions per category, max 5 points each = 125 max)
+                                const questionsCount = 25; // Standard questions per category
+                                const maxPoints = questionsCount * 5; // 125 points max
+                                const actualPoints = Math.round((score / 100) * maxPoints);
+
+                                // Determine status based on score
+                                let statusBadge = null;
+                                let statusColor = '#666';
+                                if (score >= 75) {
+                                  statusBadge = 'Excellent';
+                                  statusColor = '#28a745';
+                                } else if (score >= 50) {
+                                  statusBadge = 'Needs Improvement';
+                                  statusColor = '#ffc107';
+                                } else {
+                                  statusBadge = 'Critical';
+                                  statusColor = '#dc3545';
+                                }
 
                                 return (
                                   <div key={catIndex} style={{
-                                    marginBottom: '12px',
-                                    padding: '12px',
-                                    backgroundColor: '#f8f9fa',
-                                    borderRadius: '6px',
-                                    border: '1px solid #e0e0e0'
-                                  }}>
-                                    <div className="d-flex justify-content-between align-items-center mb-2">
-                                      <span style={{
-                                        fontSize: '14px',
-                                        fontWeight: 500,
-                                        color: '#333',
-                                        flex: 1
-                                      }}>
-                                        {categoryName}
-                                      </span>
-                                      <span style={{
-                                        fontSize: '16px',
-                                        fontWeight: 700,
-                                        color: score >= 75 ? '#28a745' : score >= 50 ? '#ffc107' : '#dc3545',
-                                        minWidth: '50px',
-                                        textAlign: 'right'
-                                      }}>
-                                        {parseFloat(score).toFixed(1)}%
-                                      </span>
+                                    marginBottom: '16px',
+                                    padding: '16px',
+                                    backgroundColor: '#ffffff',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e0e0e0',
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                  }}
+                                  >
+                                    <div className="d-flex justify-content-between align-items-start mb-2">
+                                      <div style={{ flex: 1 }}>
+                                        <div className="d-flex align-items-center gap-2 justify-content-between mb-2">
+                                          <span style={{
+                                            fontSize: '16px',
+                                            fontWeight: 600,
+                                            color: '#333'
+                                          }}>
+                                            {categoryName}
+                                          </span>
+                                        <Button
+                                          variant="link"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenScoreRangesModal(assessment.band, categoryName, score, index);
+                                          }}
+                                          style={{
+                                            padding: '2px 8px',
+                                            fontSize: '12px',
+                                            color: '#4a90e2',
+                                            textDecoration: 'none',
+                                            marginLeft: '8px'
+                                          }}
+                                        >
+                                          View Interpretation & Range
+                                        </Button>
+                                        </div>
+                                        <div className="d-flex align-items-center gap-2 justify-content-between mb-2">
+                                        <div style={{
+                                          fontSize: '13px',
+                                          color: '#666',
+                                          marginBottom: '8px'
+                                        }}>
+                                         {actualPoints}/{maxPoints} Marks
+                                        </div>
+                                          {/* <span style={{
+                                            fontSize: '14px',
+                                            fontWeight: 700,
+                                            color: '#333'
+                                          }}>
+                                            {parseFloat(score).toFixed(1)}%
+                                          </span> */}
+                                        </div>
+                                      </div>
                                     </div>
-                                    <ProgressBar
+                                    {/* <ProgressBar
                                       now={parseFloat(score)}
-                                      style={{ height: '8px' }}
+                                      style={{ height: '10px', borderRadius: '5px' }}
                                       variant={
                                         score >= 75 ? 'success' :
                                           score >= 50 ? 'warning' :
                                             'danger'
                                       }
-                                    />
+                                    /> */}
+
+                                    {isLoading && (
+                                      <div className="mt-2" style={{ fontSize: '12px', color: '#666', fontStyle: 'italic' }}>
+                                        Loading evaluation...
+                                      </div>
+                                    )}
+                                    {evaluation && evaluation.error && (
+                                      <div className="mt-2" style={{ fontSize: '12px', color: '#dc3545', fontStyle: 'italic' }}>
+                                        {evaluation.error}
+                                      </div>
+                                    )}
                                   </div>
                                 );
                               })}
@@ -1030,10 +1381,16 @@ const Dashboard = () => {
                                   : null;
 
                                 return (
-                                  <div key={sectionIndex} className="mb-4" style={{
-                                    borderBottom: sectionIndex < assessment.sections.length - 1 ? '2px solid #e0e0e0' : 'none',
-                                    paddingBottom: sectionIndex < assessment.sections.length - 1 ? '15px' : '0'
-                                  }}>
+                                  <div 
+                                    key={sectionIndex} 
+                                    id={`category-${index}-${section.category}`}
+                                    className="mb-4" 
+                                    style={{
+                                      borderBottom: sectionIndex < assessment.sections.length - 1 ? '2px solid #e0e0e0' : 'none',
+                                      paddingBottom: sectionIndex < assessment.sections.length - 1 ? '15px' : '0',
+                                      transition: 'all 0.3s ease'
+                                    }}
+                                  >
                                     <div className="d-flex justify-content-between align-items-center mb-3">
                                       <h6 style={{
                                         color: '#333',
@@ -1085,7 +1442,7 @@ const Dashboard = () => {
                                                   qa.answer_value === '2' ? 'Rarely' :
                                                     qa.answer_value === '1' ? 'Not yet' :
                                                       qa.answer_value
-                                          } ({qa.answer_value})
+                                          }
                                         </div>
                                       </div>
                                     ))}
@@ -1104,6 +1461,135 @@ const Dashboard = () => {
           </Card.Body>
         </Card>
       </Container>
+
+      {/* Score Ranges Modal */}
+      <Modal
+        show={showScoreRangesModal}
+        onHide={handleCloseScoreRangesModal}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+          {modalCategory} --Score Interpretation
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ padding: '0' }}>
+          {loadingScoreRanges[modalBand] ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
+              Loading score ranges...
+            </div>
+          ) : scoreRanges[modalBand] && !scoreRanges[modalBand].error ? (
+            <div style={{ overflowX: 'auto', maxHeight: '70vh', overflowY: 'auto' }}>
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                fontSize: '13px'
+              }}>
+                <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+                  <tr style={{
+                    backgroundColor: '#f8f9fa',
+                    borderBottom: '2px solid #dee2e6'
+                  }}>
+                    <th style={{
+                      padding: '12px',
+                      textAlign: 'left',
+                      fontWeight: 600,
+                      color: '#333',
+                      borderRight: '1px solid #dee2e6',
+                      backgroundColor: '#f8f9fa'
+                    }}>
+                      Score Interpretation
+                    </th>
+                    <th style={{
+                      padding: '12px',
+                      textAlign: 'left',
+                      fontWeight: 600,
+                      color: '#333',
+                      borderRight: '1px solid #dee2e6',
+                      backgroundColor: '#f8f9fa'
+                    }}>
+                      Interpretation
+                    </th>
+                    <th style={{
+                      padding: '12px',
+                      textAlign: 'left',
+                      fontWeight: 600,
+                      color: '#333',
+                      backgroundColor: '#f8f9fa'
+                    }}>
+                      Focus Area
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scoreRanges[modalBand]
+                    .filter(range => range.category === modalCategory)
+                    .map((range, rangeIndex) => {
+                      const isHighlighted = modalScore !== null && isScoreInRange(parseFloat(modalScore), range.score_range);
+                      return (
+                        <tr key={rangeIndex} style={{
+                          borderBottom: '1px solid #e0e0e0',
+                          backgroundColor: isHighlighted 
+                            ? '#fff3cd' 
+                            : rangeIndex % 2 === 0 
+                              ? '#ffffff' 
+                              : '#f9f9f9',
+                          borderLeft: isHighlighted ? '4px solid #ffc107' : 'none',
+                          fontWeight: isHighlighted ? 600 : 'normal'
+                        }}>
+                          <td style={{
+                            padding: '12px',
+                            borderRight: '1px solid #e0e0e0',
+                            color: isHighlighted ? '#856404' : '#666',
+                            fontFamily: 'monospace',
+                            fontWeight: isHighlighted ? 700 : 'normal'
+                          }}>
+                            {range.score_range}
+                          </td>
+                          <td style={{
+                            padding: '12px',
+                            borderRight: '1px solid #e0e0e0',
+                            color: isHighlighted ? '#856404' : '#555',
+                            maxWidth: '300px'
+                          }}>
+                            {range.interpretation}
+                          </td>
+                          <td style={{
+                            padding: '12px',
+                            color: isHighlighted ? '#856404' : '#555',
+                            maxWidth: '300px'
+                          }}>
+                            {range.focus_area}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#dc3545' }}>
+              {scoreRanges[modalBand]?.error || 'Failed to load score ranges'}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant="primary" 
+            onClick={handleReviewAnswers}
+            style={{
+              backgroundColor: '#4a90e2',
+              borderColor: '#4a90e2',
+              color: 'white',
+              fontWeight: 600,
+              padding: '8px 20px'
+            }}
+          >
+            Review Answers
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Toast Notification */}
       {showToast && (

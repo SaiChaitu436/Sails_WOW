@@ -465,6 +465,77 @@ def get_assessment_history(employee_id: str, db_conn=Depends(get_db_conn)):
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
+@app.get("/assessment/score-ranges/{band}")
+def get_score_ranges(band: str, db_conn=Depends(get_db_conn)):
+    """
+    Get all score ranges, interpretations, and focus areas for a specific band.
+    Returns all categories and their score ranges in a table format.
+    
+    Args:
+        band: Band identifier (e.g., "2A", "band2A", "1", "band1")
+    """
+    try:
+        with db_conn as conn:
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            
+            # Normalize band format - check if it starts with 'band', if not add it
+            normalized_band = band if band.startswith('band') else f'band{band}'
+            
+            # Try with normalized band first
+            cur.execute("""
+                SELECT
+                    "Category",
+                    "Score Range",
+                    "Interpretations",
+                    "Focus Area"
+                FROM interpretations_and_focus_area
+                WHERE "Band"=%s
+                ORDER BY "Category", "Score Range";
+            """, (normalized_band,))
+
+            rules = cur.fetchall()
+            
+            # If no results with normalized format, try the original band format
+            if not rules:
+                cur.execute("""
+                    SELECT
+                        "Category",
+                        "Score Range",
+                        "Interpretations",
+                        "Focus Area"
+                    FROM interpretations_and_focus_area
+                    WHERE "Band"=%s
+                    ORDER BY "Category", "Score Range";
+                """, (band,))
+                rules = cur.fetchall()
+
+        if not rules:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No score ranges found for band {band}. Tried formats: {band}, {normalized_band}"
+            )
+
+        # Format the response
+        return {
+            "band": band,
+            "score_ranges": [
+                {
+                    "category": rule["Category"],
+                    "score_range": rule["Score Range"],
+                    "interpretation": rule["Interpretations"].strip('"') if rule["Interpretations"] else "",
+                    "focus_area": rule["Focus Area"].strip('"') if rule["Focus Area"] else ""
+                }
+                for rule in rules
+            ]
+        }
+
+    except HTTPException:
+        raise
+    except psycopg2.Error as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/assessment/{category}/{employee_id}")
 def get_category_info(category: str, employee_id: str, db_conn=Depends(get_db_conn)):
