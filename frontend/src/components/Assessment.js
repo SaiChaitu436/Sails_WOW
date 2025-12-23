@@ -140,8 +140,34 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
       setCurrentCategoryIndex(initialCategoryIndex);
       
       // Check if this category is already completed (review mode)
-      if (isCategoryCompleted(initialCategoryIndex)) {
+      const isCompleted = isCategoryCompleted(initialCategoryIndex);
+      if (isCompleted) {
         setIsReviewMode(true);
+        
+        // Load answers from localStorage for review mode
+        const savedProgress = localStorage.getItem('assessmentProgress');
+        if (savedProgress) {
+          try {
+            const progress = JSON.parse(savedProgress);
+            const progressAnswers = progress.answers || {};
+            
+            // Filter answers for this specific category
+            const categoryAnswers = {};
+            Object.keys(progressAnswers).forEach(key => {
+              if (key.startsWith(`category-${initialCategoryIndex}-`)) {
+                categoryAnswers[key] = progressAnswers[key];
+              }
+            });
+            
+            // If we have answers for this category, load them
+            if (Object.keys(categoryAnswers).length > 0) {
+              setAnswers(categoryAnswers);
+              setQuestionIndex(0); // Start at first question for review
+            }
+          } catch (e) {
+            console.error('Error loading saved progress:', e);
+          }
+        }
       }
     }
 
@@ -212,16 +238,19 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
       setCategoryQuestions(questions);
     }
 
-    // Load saved progress for this category
-    const savedProgress = localStorage.getItem('assessmentProgress');
-    if (savedProgress) {
-      const progress = JSON.parse(savedProgress);
-      const savedCategoryIndex = progress.categoryIndex || 0;
-      
-      // Only load if we're on the same category
-      if (savedCategoryIndex === initialCategoryIndex) {
-        setQuestionIndex(progress.questionIndex || 0);
-        setAnswers(progress.answers || {});
+    // Load saved progress for this category (only if not in review mode)
+    const isCompleted = isCategoryCompleted(initialCategoryIndex);
+    if (!isCompleted) {
+      const savedProgress = localStorage.getItem('assessmentProgress');
+      if (savedProgress) {
+        const progress = JSON.parse(savedProgress);
+        const savedCategoryIndex = progress.categoryIndex || 0;
+        
+        // Only load if we're on the same category
+        if (savedCategoryIndex === initialCategoryIndex) {
+          setQuestionIndex(progress.questionIndex || 0);
+          setAnswers(progress.answers || {});
+        }
       }
     }
 
@@ -265,6 +294,54 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
       setCategoryQuestions(questions);
     }
   }, [questionsData, currentCategoryIndex, show]);
+
+  // Load localStorage answers when switching to a completed category (review mode)
+  useEffect(() => {
+    if (!show) return;
+    
+    const isCompleted = isCategoryCompleted(currentCategoryIndex);
+    
+    // If category is completed, load answers from localStorage
+    if (isCompleted) {
+      setIsReviewMode(true);
+      
+      const savedProgress = localStorage.getItem('assessmentProgress');
+      if (savedProgress) {
+        try {
+          const progress = JSON.parse(savedProgress);
+          const progressAnswers = progress.answers || {};
+          
+          // Filter answers for this specific category
+          const categoryAnswers = {};
+          Object.keys(progressAnswers).forEach(key => {
+            if (key.startsWith(`category-${currentCategoryIndex}-`)) {
+              categoryAnswers[key] = progressAnswers[key];
+            }
+          });
+          
+          // If we have answers for this category, load them
+          if (Object.keys(categoryAnswers).length > 0) {
+            setAnswers(prev => {
+              // Clear answers from other categories, keep only this category's answers
+              const filtered = Object.keys(prev).reduce((acc, key) => {
+                if (!key.startsWith(`category-${currentCategoryIndex}-`)) {
+                  acc[key] = prev[key];
+                }
+                return acc;
+              }, {});
+              return { ...filtered, ...categoryAnswers };
+            });
+            setQuestionIndex(0); // Start at first question for review
+          }
+        } catch (e) {
+          console.error('Error loading saved progress for review:', e);
+        }
+      }
+    } else {
+      // If not completed, ensure review mode is off
+      setIsReviewMode(false);
+    }
+  }, [currentCategoryIndex, show, isCategoryCompleted]);
 
   // Immediate localStorage persistence
   useEffect(() => {
