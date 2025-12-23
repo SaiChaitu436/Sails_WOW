@@ -1327,8 +1327,8 @@ const Dashboard = () => {
                               backgroundColor: '#f9f9f9',
                               padding: '15px',
                               borderRadius: '8px',
-                              maxHeight: sectionScoresHeights[index] ? `${sectionScoresHeights[index]}px` : 'none',
-                              overflowY: sectionScoresHeights[index] ? 'auto' : 'visible'
+                              maxHeight: assessment.status === "Completed" && sectionScoresHeights[index] ? `${sectionScoresHeights[index]}px` : '600px',
+                              overflowY: 'auto'
                             }}>
                               {/* Filter indicator and clear button */}
                               {filteredCategoryByAssessment[index] && (
