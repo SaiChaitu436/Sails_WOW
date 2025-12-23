@@ -26,7 +26,22 @@ const ANSWER_OPTIONS = [
 
 const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, questionsData: initialQuestionsData = {} }) => {
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(initialCategoryIndex);
-  const [questionIndex, setQuestionIndex] = useState(0);
+  // Initialize questionIndex from localStorage if available for this category
+  const getInitialQuestionIndex = () => {
+    try {
+      const savedProgress = localStorage.getItem('assessmentProgress');
+      if (savedProgress) {
+        const progress = JSON.parse(savedProgress);
+        if (progress.categoryIndex === initialCategoryIndex && progress.questionIndex !== undefined) {
+          return progress.questionIndex;
+        }
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+    return 0;
+  };
+  const [questionIndex, setQuestionIndex] = useState(getInitialQuestionIndex());
   const [answers, setAnswers] = useState({});
   const [showCongratulations, setShowCongratulations] = useState(false);
   const [user, setUser] = useState(null);
@@ -492,8 +507,20 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
   };
 
   const handleClose = () => {
-    // Reset state when closing (but keep answers in localStorage for persistence)
-    setQuestionIndex(0);
+    // Save current progress before closing
+    if (user) {
+      const savedProgress = localStorage.getItem('assessmentProgress');
+      const progress = savedProgress ? JSON.parse(savedProgress) : {};
+      localStorage.setItem('assessmentProgress', JSON.stringify({
+        ...progress,
+        categoryIndex: currentCategoryIndex,
+        questionIndex: questionIndex, // Save current question index
+        answers: answers,
+        lastSaved: new Date().toISOString()
+      }));
+    }
+    
+    // Reset only UI state, keep progress in localStorage
     setSubmitError(null);
     setShowCongratulations(false);
     onHide();
