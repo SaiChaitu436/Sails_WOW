@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { Card, Form, Button, ProgressBar, Container, Alert, Spinner } from 'react-bootstrap';
-import { ArrowLeft, CheckCircle2, Clock, LogOut, Lock } from 'lucide-react';
-import { Close, Check, ArrowBack, ArrowForward, AccessTime, Celebration } from '@mui/icons-material';
+import { Modal, Form, Button, ProgressBar, Alert, Spinner } from 'react-bootstrap';
+import { CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
 import CongratulationsModal from './CongratulationsModal';
 import '../styles.css';
@@ -26,12 +24,8 @@ const ANSWER_OPTIONS = [
   { value: '1', label: 'Not yet', description: "I haven't tried this before" }
 ];
 
-const Assessment = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const questionsData = location.state || {};
-  const [searchParams] = useSearchParams();
-  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
+const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, questionsData: initialQuestionsData = {} }) => {
+  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(initialCategoryIndex);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showCongratulations, setShowCongratulations] = useState(false);
@@ -42,6 +36,7 @@ const Assessment = () => {
   const [submitError, setSubmitError] = useState(null);
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [categoryQuestions, setCategoryQuestions] = useState([]);
+  const [questionsData, setQuestionsData] = useState(initialQuestionsData);
 
   // Check if category is completed and synced with API
   const isCategoryCompleted = useCallback((categoryIndex) => {
@@ -103,9 +98,11 @@ const Assessment = () => {
 
   // Load user and initial state
   useEffect(() => {
+    if (!show) return; // Only load when modal is shown
+    
     const userData = localStorage.getItem('user');
     if (!userData) {
-      navigate('/');
+      onHide();
       return;
     }
     const parsedUser = JSON.parse(userData);
@@ -118,24 +115,19 @@ const Assessment = () => {
       setCurrentBand(data.currentBand || '2A');
     }
 
-    // Check for category parameter
-    const categoryParam = searchParams.get('category');
-    if (categoryParam) {
-      const catIndex = parseInt(categoryParam);
-      if (catIndex >= 0 && catIndex < CATEGORIES.length) {
-        setCurrentCategoryIndex(catIndex);
-        
-        // Check if this category is already completed (review mode)
-        if (isCategoryCompleted(catIndex)) {
-          setIsReviewMode(true);
-        }
+    // Set category index from prop
+    if (initialCategoryIndex >= 0 && initialCategoryIndex < CATEGORIES.length) {
+      setCurrentCategoryIndex(initialCategoryIndex);
+      
+      // Check if this category is already completed (review mode)
+      if (isCategoryCompleted(initialCategoryIndex)) {
+        setIsReviewMode(true);
       }
     }
 
     // Load questions for current category
-    const categoryIndex = parseInt(categoryParam) || 0;
-    const categoryName = CATEGORIES[categoryIndex];
-    const questions = questionsData[categoryName] || [];
+    const categoryName = CATEGORIES[initialCategoryIndex];
+    const questions = initialQuestionsData[categoryName] || [];
     
     // If questions not in state, try to fetch them from API
     if (questions.length === 0 && parsedUser) {
@@ -189,6 +181,8 @@ const Assessment = () => {
           
           const categoryQuestions = grouped[categoryName] || [];
           setCategoryQuestions(categoryQuestions);
+          // Update questionsData state
+          setQuestionsData(grouped);
         } catch (error) {
           console.error('Error fetching questions:', error);
           setCategoryQuestions([]);
@@ -207,7 +201,7 @@ const Assessment = () => {
       const savedCategoryIndex = progress.categoryIndex || 0;
       
       // Only load if we're on the same category
-      if (savedCategoryIndex === (parseInt(categoryParam) || 0)) {
+      if (savedCategoryIndex === initialCategoryIndex) {
         setQuestionIndex(progress.questionIndex || 0);
         setAnswers(progress.answers || {});
       }
@@ -225,7 +219,7 @@ const Assessment = () => {
       try {
         const progressData = JSON.parse(savedProgressForCheck);
         const progressAnswers = progressData.answers || {};
-        hasLocalAnswers = Object.keys(progressAnswers).some(key => key.startsWith(`category-${categoryIndex}-`));
+        hasLocalAnswers = Object.keys(progressAnswers).some(key => key.startsWith(`category-${initialCategoryIndex}-`));
       } catch (e) {
         // Ignore parse errors
       }
@@ -234,26 +228,25 @@ const Assessment = () => {
     // Only call category API if:
     // - Category is not completed AND
     // - (Category is not first OR has local answers)
-    const shouldLoadFromAPI = parsedUser && categoryName && !isCategoryCompleted(categoryIndex) && 
-                              (categoryIndex > 0 || hasLocalAnswers);
+    const shouldLoadFromAPI = parsedUser && categoryName && !isCategoryCompleted(initialCategoryIndex) && 
+                              (initialCategoryIndex > 0 || hasLocalAnswers);
     
     if (shouldLoadFromAPI) {
       const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
       loadPreviousSectionAnswers(categoryName, employeeId);
     }
-  }, [navigate, searchParams, questionsData, isCategoryCompleted]);
+  }, [show, initialCategoryIndex, initialQuestionsData, isCategoryCompleted, onHide]);
 
   // Update categoryQuestions when questionsData changes
   useEffect(() => {
-    const categoryParam = searchParams.get('category');
-    const categoryIndex = parseInt(categoryParam) || 0;
-    const categoryName = CATEGORIES[categoryIndex];
+    if (!show) return;
+    const categoryName = CATEGORIES[currentCategoryIndex];
     const questions = questionsData[categoryName] || [];
     
     if (questions.length > 0) {
       setCategoryQuestions(questions);
     }
-  }, [questionsData, searchParams]);
+  }, [questionsData, currentCategoryIndex, show]);
 
   // Immediate localStorage persistence
   useEffect(() => {
@@ -455,7 +448,7 @@ const Assessment = () => {
   };
 
   const handleBackToDashboard = () => {
-    navigate('/dashboard');
+    onHide();
   };
 
   const handlePrevious = () => {
@@ -468,8 +461,8 @@ const Assessment = () => {
     setShowCongratulations(false);
     
     if (isReviewMode) {
-      // Already submitted, just navigate back
-      navigate('/dashboard');
+      // Already submitted, just close modal
+      onHide();
       return;
     }
 
@@ -481,9 +474,11 @@ const Assessment = () => {
         'justCompleted', 
         `You've successfully completed the ${CATEGORIES[currentCategoryIndex]} assessment`
       );
-      // Navigate back to dashboard after a short delay
+      // Close modal after a short delay
       setTimeout(() => {
-        navigate('/dashboard');
+        onHide();
+        // Trigger page refresh to update dashboard
+        window.location.reload();
       }, 1500);
     } else {
       // Error already set in submitCategoryToAPI
@@ -497,10 +492,14 @@ const Assessment = () => {
   };
 
   const handleClose = () => {
-    navigate('/dashboard');
+    // Reset state when closing (but keep answers in localStorage for persistence)
+    setQuestionIndex(0);
+    setSubmitError(null);
+    setShowCongratulations(false);
+    onHide();
   };
 
-  if (!user) {
+  if (!user || !show) {
     return null;
   }
 
@@ -528,38 +527,9 @@ const Assessment = () => {
   };
 
   return (
-    <div className="assessment-page-container">
-      {/* Dashboard Background */}
-      <div className="assessment-background">
-        <div className="dashboard-background-content">
-          <Container className="py-4">
-            {/* Header */}
-            <div className="dashboard-header mb-4">
-              <div className="d-flex align-items-center">
-                <ArrowBack 
-                  className="header-icon" 
-                  style={{ marginRight: '16px', cursor: 'pointer' }}
-                  onClick={handleClose}
-                />
-                <div>
-                  <h1 className="dashboard-title">Employee Dashboard</h1>
-                  <p className="dashboard-subtitle">Welcome back, {user.fullName || user.name}</p>
-                </div>
-              </div>
-              <div className="d-flex align-items-center">
-                <div className="band-badge">{currentBand}</div>
-                <ArrowForward className="header-icon" style={{ marginLeft: '16px' }} />
-              </div>
-            </div>
-          </Container>
-        </div>
-      </div>
-
-      {/* Assessment Modal */}
-      <div className="modal-overlay">
-        <Card className="card-base assessment-modal-card">
-          <Card.Body className="assessment-modal-body">
-            {/* Modal Header */}
+    <Modal show={show} onHide={handleClose} centered size="lg" className="assessment-modal">
+      <Modal.Body className="assessment-modal-body">
+        {/* Modal Header */}
             <div className="assessment-modal-header">
               <div>
                 <div className="d-flex align-items-center gap-2">
@@ -691,9 +661,7 @@ const Assessment = () => {
                   </Button>
                 )}
             </div>
-          </Card.Body>
-        </Card>
-      </div>
+      </Modal.Body>
 
       {/* Congratulations Modal */}
       {!isReviewMode && (
@@ -710,7 +678,7 @@ const Assessment = () => {
           isSubmitting={isSubmitting}
         />
       )}
-    </div>
+    </Modal>
   );
 };
 

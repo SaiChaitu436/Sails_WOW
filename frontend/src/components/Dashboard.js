@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Card, Button, ProgressBar, Modal } from "react-bootstrap";
 import { CheckCircle2, Clock, Lock } from "lucide-react";
 import axios from "axios";
+import Assessment from "./Assessment";
 import "../styles.css";
 import "./Dashboard.css";
 import * as dateFns from "date-fns"
@@ -90,6 +91,8 @@ const Dashboard = () => {
   const [modalCategory, setModalCategory] = useState(null); // Category to filter and highlight
   const [modalScore, setModalScore] = useState(null); // User's score to highlight matching row
   const [modalAssessmentIndex, setModalAssessmentIndex] = useState(null); // Assessment index for scrolling
+  const [showAssessmentModal, setShowAssessmentModal] = useState(false); // Assessment modal visibility
+  const [assessmentCategoryIndex, setAssessmentCategoryIndex] = useState(0); // Category index for assessment
 
   const getQuestions = (band, category) => {
     // Ensure band format is correct (add 'band' prefix if not present)
@@ -665,7 +668,8 @@ const Dashboard = () => {
 
     // Set the category index based on competency order (0-indexed)
     const categoryIndex = competency.order - 1;
-    navigate(`/assessment?category=${categoryIndex}`, { state: questionsData });
+    setAssessmentCategoryIndex(categoryIndex);
+    setShowAssessmentModal(true);
   };
 
   const handleLogout = () => {
@@ -1590,6 +1594,14 @@ const Dashboard = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Assessment Modal */}
+      <Assessment
+        show={showAssessmentModal}
+        onHide={() => setShowAssessmentModal(false)}
+        categoryIndex={assessmentCategoryIndex}
+        questionsData={questionsData}
+      />
 
       {/* Toast Notification */}
       {showToast && (
