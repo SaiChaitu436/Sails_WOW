@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Card, Button, ProgressBar, Modal } from "react-bootstrap";
 import { CheckCircle2, Clock, Lock } from "lucide-react";
@@ -95,6 +95,8 @@ const Dashboard = () => {
   const [showAssessmentModal, setShowAssessmentModal] = useState(false); // Assessment modal visibility
   const [assessmentCategoryIndex, setAssessmentCategoryIndex] = useState(0); // Category index for assessment
   const [filteredCategoryByAssessment, setFilteredCategoryByAssessment] = useState({}); // Track filtered category per assessment
+  const [sectionScoresHeights, setSectionScoresHeights] = useState({}); // Track heights of section-wise scores per assessment
+  const scoresRefs = useRef({}); // Refs for section-wise scores containers
 
   const getQuestions = (band, category) => {
     // Ensure band format is correct (add 'band' prefix if not present)
@@ -501,6 +503,32 @@ const Dashboard = () => {
     }
   }, [user, currentBand]);
 
+  // Recalculate section scores heights when expandedScores or scoreEvaluations change
+  useEffect(() => {
+    // Check all assessment indices
+    assessmentHistory.forEach((assessment, index) => {
+      if (expandedScores[index]) {
+        const ref = scoresRefs.current[`scores-${index}`];
+        if (ref) {
+          setTimeout(() => {
+            const height = ref.offsetHeight;
+            setSectionScoresHeights(prev => ({
+              ...prev,
+              [index]: height
+            }));
+          }, 100);
+        }
+      } else {
+        // Clear height when collapsed
+        setSectionScoresHeights(prev => {
+          const newState = { ...prev };
+          delete newState[index];
+          return newState;
+        });
+      }
+    });
+  }, [expandedScores, scoreEvaluations, assessmentHistory]);
+
   // Watch for completion of all competencies
   // useEffect(() => {
   //   if (Object.keys(competencyProgress).length === 0) return;
@@ -587,44 +615,6 @@ const Dashboard = () => {
     }
 
     setCompetencyProgress(progressMap);
-
-    // Check if all competencies are completed (full assessment completed)
-    // const allCompleted = COMPETENCIES.every((comp) => {
-    //   const compProgress = progressMap[comp.id] || 0;
-    //   return compProgress === 25;
-    // });
-
-    // if (allCompleted && COMPETENCIES.length > 0) {
-    //   // Check if we have a stored completion date
-    //   const storedCompletedDate = localStorage.getItem(
-    //     "assessmentCompletedDate"
-    //   );
-    //   if (storedCompletedDate) {
-    //     setCompletedDate(new Date(storedCompletedDate));
-    //     setAssessmentStatus("completed");
-    //   } else {
-    //     // Mark as completed and store date
-    //     const now = new Date();
-    //     setCompletedDate(now);
-    //     setAssessmentStatus("completed");
-    //     localStorage.setItem("assessmentCompletedDate", now.toISOString());
-    //     const currentBandData = currentBand || "2A";
-    //     localStorage.setItem(
-    //       "assessmentData",
-    //       JSON.stringify({
-    //         currentBand: currentBandData,
-    //         status: "completed",
-    //         completedDate: now.toISOString(),
-    //       })
-    //     );
-    //   }
-    // }
-
-    // Load assessment history
-    // const history = localStorage.getItem("assessmentHistory");
-    // if (history) {
-    //   setAssessmentHistory(JSON.parse(history));
-    // }
 
     // Check for toast message
     const justCompleted = sessionStorage.getItem("justCompleted");
@@ -991,7 +981,7 @@ const Dashboard = () => {
             ) : (
               <div className="history-list" style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))',
                 gap: '20px',
                 width: '100%'
               }}>
@@ -1023,19 +1013,19 @@ const Dashboard = () => {
                       }}
                     >
                       <div className="mb-3">
-                        <div className="d-flex justify-content-between align-items-start mb-2">
-                          <div style={{ flex: 1 }}>
-                            <div className="d-flex align-items-center gap-2 mb-2">
-                              <strong style={{ fontSize: '18px', color: '#333' }}>
+                        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start mb-2">
+                          <div style={{ flex: 1, width: '100%' }}>
+                            <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+                              <strong style={{ fontSize: '18px', color: '#333', wordBreak: 'break-word' }}>
                                 Band {assessment.band} Assessment
                               </strong>
                               {assessment.status === "Completed" && (
-                                <span className="badge bg-success" style={{ fontSize: '12px' }}>
+                                <span className="badge bg-success" style={{ fontSize: '12px', flexShrink: 0 }}>
                                   Completed
                                 </span>
                               )}
                               {assessment.status === "In Progress" && (
-                                <span className="badge bg-warning text-dark" style={{ fontSize: '12px' }}>
+                                <span className="badge bg-warning text-dark" style={{ fontSize: '12px', flexShrink: 0 }}>
                                   In Progress
                                 </span>
                               )}
@@ -1125,7 +1115,7 @@ const Dashboard = () => {
                           borderTop: '1px solid #e0e0e0',
                           paddingTop: '15px'
                         }}>
-                          <div className="d-flex justify-content-between align-items-center mb-2">
+                          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-2 gap-2">
                             <h6 style={{
                               margin: 0,
                               fontSize: '16px',
@@ -1149,12 +1139,14 @@ const Dashboard = () => {
                                   fetchScoreEvaluations(index, assessment);
                                 }
                               }}
+                              className="text-nowrap"
                               style={{
                                 padding: 0,
                                 textDecoration: 'none',
                                 color: '#4a90e2',
                                 fontWeight: 500,
-                                fontSize: '13px'
+                                fontSize: '13px',
+                                flexShrink: 0
                               }}
                             >
                               {expandedScores[index] ? '▼ Hide' : '▶ Show'} Scores
@@ -1162,7 +1154,22 @@ const Dashboard = () => {
                           </div>
 
                           {expandedScores[index] && (
-                            <div className="mt-2">
+                            <div 
+                              ref={el => {
+                                if (el) {
+                                  scoresRefs.current[`scores-${index}`] = el;
+                                  // Measure height after render
+                                  setTimeout(() => {
+                                    const height = el.offsetHeight;
+                                    setSectionScoresHeights(prev => ({
+                                      ...prev,
+                                      [index]: height
+                                    }));
+                                  }, 50);
+                                }
+                              }}
+                              className="mt-2"
+                            >
                               {assessment.category_scores.map((categoryScore, catIndex) => {
                                 const score = typeof categoryScore === 'object'
                                   ? categoryScore.score
@@ -1215,48 +1222,44 @@ const Dashboard = () => {
                                     e.currentTarget.style.transform = 'translateY(0)';
                                   }}
                                   >
-                                    <div className="d-flex justify-content-between align-items-start">
-                                      <div style={{ flex: 1 }}>
-                                        <div className="d-flex align-items-center gap-2 justify-content-between mb-2">
+                                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-start">
+                                      <div style={{ flex: 1, width: '100%' }}>
+                                        <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 justify-content-between mb-2">
                                           <span style={{
                                             fontSize: '16px',
                                             fontWeight: 600,
-                                            color: '#333'
+                                            color: '#333',
+                                            wordBreak: 'break-word'
                                           }}>
                                             {categoryName}
                                           </span>
-                                        <Button
-                                          variant="link"
-                                          size="sm"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleOpenScoreRangesModal(assessment.band, categoryName, score, index);
-                                          }}
-                                          style={{
-                                            padding: '2px 8px',
+                                          <Button
+                                            variant="link"
+                                            size="sm"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleOpenScoreRangesModal(assessment.band, categoryName, score, index);
+                                            }}
+                                            className="text-nowrap"
+                                            style={{
+                                              padding: '2px 8px',
+                                              fontSize: '12px',
+                                              color: '#4a90e2',
+                                              textDecoration: 'none',
+                                              whiteSpace: 'nowrap',
+                                              flexShrink: 0
+                                            }}
+                                          >
+                                            View Interpretation & Range
+                                          </Button>
+                                        </div>
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                          <div style={{
                                             fontSize: '13px',
-                                            color: '#4a90e2',
-                                            textDecoration: 'none',
-                                            marginLeft: '8px'
-                                          }}
-                                        >
-                                          View Interpretation & Range
-                                        </Button>
-                                        </div>
-                                        <div className="d-flex align-items-center gap-2 justify-content-between mb-2">
-                                        <div style={{
-                                          fontSize: '13px',
-                                          color: '#666',
-                                        }}>
-                                         {actualPoints}/{maxPoints} Marks
-                                        </div>
-                                          {/* <span style={{
-                                            fontSize: '14px',
-                                            fontWeight: 700,
-                                            color: '#333'
+                                            color: '#666',
                                           }}>
-                                            {parseFloat(score).toFixed(1)}%
-                                          </span> */}
+                                            {actualPoints}/{maxPoints} Marks
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
@@ -1295,50 +1298,51 @@ const Dashboard = () => {
                           paddingTop: '15px',
 
                         }}>
-                          <div style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center"
-                          }}>
-
-                            <h6 className="font-semibold text-xl m-0">Assessment Review</h6>
+                          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                            <h6 className="font-semibold text-xl m-0" style={{ wordBreak: 'break-word' }}>Assessment Review</h6>
                             <Button
                               variant="link"
                               onClick={() => setExpandedHistory(prev => ({
                                 ...prev,
                                 [index]: !prev[index]
                               }))}
+                              className="text-nowrap"
                               style={{
                                 padding: 0,
                                 textDecoration: 'none',
                                 color: '#4a90e2',
                                 fontWeight: 500,
                                 fontSize: "13px",
+                                flexShrink: 0
                               }}
                             >
                               {isExpanded ? '▼ Hide Questions & Answers' : '▶ View Questions & Answers'}
                             </Button>
                           </div>
 
-
-
                           {isExpanded && (
-                            <div className="mt-3" style={{
+                            <div className="mt-2" style={{
                               backgroundColor: '#f9f9f9',
                               padding: '15px',
                               borderRadius: '8px',
-                              maxHeight: '600px',
-                              overflowY: 'auto'
+                              maxHeight: sectionScoresHeights[index] ? `${sectionScoresHeights[index]}px` : 'none',
+                              overflowY: sectionScoresHeights[index] ? 'auto' : 'visible'
                             }}>
                               {/* Filter indicator and clear button */}
                               {filteredCategoryByAssessment[index] && (
-                                <div className="mb-3 d-flex justify-content-between align-items-center" style={{
+                                <div className="mb-3 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2" style={{
                                   padding: '10px',
                                   backgroundColor: '#e3f2fd',
                                   borderRadius: '6px',
                                   border: '1px solid #4a90e2'
                                 }}>
-                                  <span style={{ fontSize: '14px', color: '#333', fontWeight: 500 }}>
+                                  <span style={{ 
+                                    fontSize: '14px', 
+                                    color: '#333', 
+                                    fontWeight: 500,
+                                    wordBreak: 'break-word',
+                                    flex: 1
+                                  }}>
                                     <strong>{filteredCategoryByAssessment[index]}</strong>
                                   </span>
                                   <Button
@@ -1351,12 +1355,14 @@ const Dashboard = () => {
                                         return newState;
                                       });
                                     }}
+                                    className="text-nowrap"
                                     style={{
                                       padding: '2px 8px',
                                       fontSize: '12px',
                                       color: '#4a90e2',
                                       textDecoration: 'none',
-                                      fontWeight: 500
+                                      fontWeight: 500,
+                                      flexShrink: 0
                                     }}
                                   >
                                     Show All Categories
@@ -1395,12 +1401,14 @@ const Dashboard = () => {
                                         transition: 'all 0.3s ease'
                                       }}
                                     >
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
                                       <h6 style={{
                                         color: '#333',
                                         margin: 0,
                                         fontWeight: 600,
-                                        fontSize: '16px'
+                                        fontSize: '16px',
+                                        wordBreak: 'break-word',
+                                        flex: 1
                                       }}>
                                         {section.category}
                                       </h6>
@@ -1411,7 +1419,8 @@ const Dashboard = () => {
                                             sectionScore >= 50 ? '#fff3cd' : '#f8d7da',
                                           borderRadius: '20px',
                                           border: `1px solid ${sectionScore >= 75 ? '#c3e6cb' :
-                                            sectionScore >= 50 ? '#ffeaa7' : '#f5c6cb'}`
+                                            sectionScore >= 50 ? '#ffeaa7' : '#f5c6cb'}`,
+                                          flexShrink: 0
                                         }}>
                                           <span style={{
                                             fontSize: '14px',
@@ -1429,15 +1438,23 @@ const Dashboard = () => {
                                         padding: '10px',
                                         backgroundColor: 'white',
                                         borderRadius: '4px',
-                                        marginBottom: '8px'
+                                        marginBottom: '8px',
+                                        wordBreak: 'break-word'
                                       }}>
-                                        <div style={{ fontWeight: 500, marginBottom: '5px', color: '#555' }}>
+                                        <div style={{ 
+                                          fontWeight: 500, 
+                                          marginBottom: '5px', 
+                                          color: '#555',
+                                          fontSize: '14px',
+                                          lineHeight: '1.5'
+                                        }}>
                                           Q{qaIndex + 1}: {qa.question}
                                         </div>
                                         <div style={{
                                           color: '#4a90e2',
                                           fontWeight: 600,
-                                          fontSize: '14px'
+                                          fontSize: '14px',
+                                          wordBreak: 'break-word'
                                         }}>
                                           Answer: {
                                             qa.answer_value === '5' ? 'Always' :
