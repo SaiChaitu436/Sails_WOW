@@ -1,6 +1,7 @@
 .dashboard-container {
   background-color: var(--bg-light);
   min-height: 100vh;
+  padding-top: 80px; /* Account for fixed header */
 }
 
 .dashboard-header {
@@ -239,4 +240,17 @@
 
 .toast-icon {
   flex-shrink: 0;
+}
+
+/* Responsive padding for fixed header */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding-top: 75px; /* Match header height on tablets */
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding-top: 70px; /* Match header height on mobile */
+  }
 }

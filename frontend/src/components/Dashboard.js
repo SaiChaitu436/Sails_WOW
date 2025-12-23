@@ -4,6 +4,7 @@ import { Container, Card, Button, ProgressBar, Modal } from "react-bootstrap";
 import { CheckCircle2, Clock, Lock } from "lucide-react";
 import axios from "axios";
 import Assessment from "./Assessment";
+import DashboardHeader from "./DashboardHeader";
 import "../styles.css";
 import "./Dashboard.css";
 import * as dateFns from "date-fns"
@@ -177,7 +178,7 @@ const Dashboard = () => {
 
     const parsedUser = JSON.parse(userData);
     // Only use fallback pattern for employeeData API call
-    const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
+    const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS003';
 
     axios
       .get(`http://localhost:8000/employeeData/${employeeId}`, {
@@ -751,7 +752,8 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <Container className="py-4">
+      <DashboardHeader />
+      <Container className="">
         {/* Header */}
         <div className="dashboard-header mb-4">
           <div className="d-flex align-items-center">
@@ -1229,7 +1231,7 @@ const Dashboard = () => {
                                             fontSize: '16px',
                                             fontWeight: 600,
                                             color: '#333',
-                                            wordBreak: 'break-word'
+                                            // wordBreak: 'break-word'
                                           }}>
                                             {categoryName}
                                           </span>

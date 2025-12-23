@@ -416,15 +416,15 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
         localStorage.removeItem('assessmentProgress');
         localStorage.removeItem('completedCategories');
         // Keep assessmentData for history display
+      } else {
+        // Keep answers for review but mark as submitted (only if assessment not completed)
+        const progress = JSON.parse(localStorage.getItem('assessmentProgress') || '{}');
+        progress.submittedCategories = progress.submittedCategories || [];
+        if (!progress.submittedCategories.includes(currentCategoryIndex)) {
+          progress.submittedCategories.push(currentCategoryIndex);
+        }
+        localStorage.setItem('assessmentProgress', JSON.stringify(progress));
       }
-
-      // Keep answers for review but mark as submitted
-      const progress = JSON.parse(localStorage.getItem('assessmentProgress') || '{}');
-      progress.submittedCategories = progress.submittedCategories || [];
-      if (!progress.submittedCategories.includes(currentCategoryIndex)) {
-        progress.submittedCategories.push(currentCategoryIndex);
-      }
-      localStorage.setItem('assessmentProgress', JSON.stringify(progress));
 
       setIsSubmitting(false);
       return true;
