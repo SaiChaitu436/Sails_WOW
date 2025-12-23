@@ -24,7 +24,7 @@ const ANSWER_OPTIONS = [
   { value: '1', label: 'Not yet', description: "I haven't tried this before" }
 ];
 
-const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, questionsData: initialQuestionsData = {} }) => {
+const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, questionsData: initialQuestionsData = {}, employeeData: initialEmployeeData = null }) => {
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(initialCategoryIndex);
   // Initialize questionIndex from localStorage if available for this category
   const getInitialQuestionIndex = () => {
@@ -123,11 +123,16 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
 
-    // Load band from localStorage or API
-    const assessmentData = localStorage.getItem('assessmentData');
-    if (assessmentData) {
-      const data = JSON.parse(assessmentData);
-      setCurrentBand(data.currentBand || '2A');
+    // Load band from employeeData prop
+    if (initialEmployeeData) {
+      setCurrentBand(initialEmployeeData.Agreed_Band || initialEmployeeData.agreed_band);
+    } else {
+      // Fallback to assessmentData if employeeData not available
+      const assessmentData = localStorage.getItem('assessmentData');
+      if (assessmentData) {
+        const data = JSON.parse(assessmentData);
+        setCurrentBand(data.currentBand);
+      }
     }
 
     // Set category index from prop
@@ -149,10 +154,8 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
       // Fetch questions from API if not available in state
       const fetchQuestionsForCategory = async () => {
         try {
-          const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
-          // Get band from localStorage or use default
-          const assessmentData = localStorage.getItem('assessmentData');
-          const band = assessmentData ? JSON.parse(assessmentData).currentBand : '2A';
+          // Get band from employeeData prop
+          const band = initialEmployeeData ? (initialEmployeeData.Agreed_Band || initialEmployeeData.agreed_band) : '2A';
           const bandName = band.startsWith('band') ? band : `band${band}`;
           
           const response = await axios.get(
@@ -246,11 +249,11 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
     const shouldLoadFromAPI = parsedUser && categoryName && !isCategoryCompleted(initialCategoryIndex) && 
                               (initialCategoryIndex > 0 || hasLocalAnswers);
     
-    if (shouldLoadFromAPI) {
-      const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
+    if (shouldLoadFromAPI && initialEmployeeData) {
+      const employeeId = initialEmployeeData.Employee_Number;
       loadPreviousSectionAnswers(categoryName, employeeId);
     }
-  }, [show, initialCategoryIndex, initialQuestionsData, isCategoryCompleted, onHide]);
+  }, [show, initialCategoryIndex, initialQuestionsData, initialEmployeeData, isCategoryCompleted, onHide]);
 
   // Update categoryQuestions when questionsData changes
   useEffect(() => {
@@ -331,7 +334,11 @@ const Assessment = ({ show, onHide, categoryIndex: initialCategoryIndex = 0, que
 
     try {
       const categoryName = CATEGORIES[currentCategoryIndex];
-      const employeeId = user.id || user.employeeId || user.employee_id || 'SS005';
+      if (!initialEmployeeData) {
+        setSubmitError('Employee data not found');
+        return false;
+      }
+      const employeeId = initialEmployeeData.Employee_Number;
       const categoryAnswers = [];
 
       // Prepare all answers in the required format

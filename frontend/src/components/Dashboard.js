@@ -73,6 +73,7 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [userName, setUserName] = useState("");
   const [currentBand, setCurrentBand] = useState("");
+  const [employeeData, setEmployeeData] = useState(null); // Store employee data from API
   const [assessmentStatus, setAssessmentStatus] = useState("Not Taken");
   const [completedDate, setCompletedDate] = useState(null);
   const [assessmentHistory, setAssessmentHistory] = useState([]);
@@ -172,6 +173,7 @@ const Dashboard = () => {
     if (!userData) return;
 
     const parsedUser = JSON.parse(userData);
+    // Only use fallback pattern for employeeData API call
     const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
 
     axios
@@ -182,6 +184,9 @@ const Dashboard = () => {
         },
       })
       .then((response) => {
+        // Store full employee data in state
+        setEmployeeData(response.data);
+        
         const band = response.data.Agreed_Band || response.data.agreed_band;
         getQuestions(band);
         setUserName(response.data.Employee_Name || response.data.employee_name);
@@ -193,11 +198,9 @@ const Dashboard = () => {
   };
 
   const getAssessmentHistory = () => {
-    const userData = localStorage.getItem("user");
-    if (!userData) return;
+    if (!employeeData) return;
 
-    const parsedUser = JSON.parse(userData);
-    const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
+    const employeeId = employeeData.Employee_Number;
 
     axios
       .get(`http://localhost:8000/assessment/history/${employeeId}`, {
@@ -231,11 +234,9 @@ const Dashboard = () => {
 
   // Fetch score evaluations for all categories in an assessment
   const fetchScoreEvaluations = async (assessmentIndex, assessment) => {
-    const userData = localStorage.getItem("user");
-    if (!userData) return;
+    if (!employeeData) return;
 
-    const parsedUser = JSON.parse(userData);
-    const employeeId = parsedUser.id || parsedUser.employeeId || parsedUser.employee_id || 'SS005';
+    const employeeId = employeeData.Employee_Number;
 
     if (!assessment.category_scores || assessment.category_scores.length === 0) {
       return;
@@ -1601,6 +1602,7 @@ const Dashboard = () => {
         onHide={() => setShowAssessmentModal(false)}
         categoryIndex={assessmentCategoryIndex}
         questionsData={questionsData}
+        employeeData={employeeData}
       />
 
       {/* Toast Notification */}
