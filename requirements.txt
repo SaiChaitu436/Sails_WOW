@@ -1,0 +1,12 @@
+# Backend Dependencies
+fastapi
+uvicorn[standard]
+psycopg2-binary
+python-dotenv
+pydantic
+
+# dbt Dependencies (for PostgresDataIngestion)
+dbt-core
+dbt-postgres
+dbt-bigquery
+

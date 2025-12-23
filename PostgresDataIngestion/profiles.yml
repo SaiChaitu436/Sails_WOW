@@ -1,0 +1,12 @@
+PostgresDataIngestion:
+  outputs:
+    dev:
+      dbname: postgres_database_name
+      host: localhost
+      pass: postgres_password
+      port: postgres_port
+      schema: public
+      threads: 1
+      type: postgres
+      user: postgres_username
+  target: dev

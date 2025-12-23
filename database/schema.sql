@@ -178,33 +178,15 @@ CREATE TABLE IF NOT EXISTS band6B (
     "Question" TEXT
 );
 
-
 -- =====================================================
--- Notes:
+-- 4. Interpretations and Focus Area Table
 -- =====================================================
--- 1. assessment_answers: Stores ongoing assessment answers
---    - Data is moved to assessment_results when assessment is completed
---    - Data is deleted from assessment_answers after completion
 
--- 2. assessment_results: Stores completed assessment results
---    - Contains final scores, category scores, and all questions/answers
---    - questions_answers column stores JSONB with all Q&A pairs
---    - completed_at timestamp is used for 45-day cooldown calculation
-
--- 3. Band tables: Store question banks for each band level
---    - Questions are randomly selected (25 per sub-section)
---    - Competency field maps to main competencies in the frontend (Communication, Adaptability & Learning Agility, etc.)
---    - Sub_Section field contains the specific sub-categories (Task Ownership, Reliability & Follow-Through, etc.)
---    - Q.No field stores the question number
---    - Note: band6A has an additional "f" column (may be a data artifact)
-
--- 4. Indexes: Created for performance optimization on frequently queried columns
---    - assessment_answers: Indexed on (employee_id, band) and (category, employee_id)
---    - assessment_results: Indexed on (employee_number, agreed_band) and (completed_at)
-
--- =====================================================
--- Migration Notes:
--- =====================================================
--- The database uses "Sub_Section" in band tables (not "Category")
--- The assessment_answers table uses "category" to store the competency name
--- This is intentional as category in assessment_answers refers to the main competency
+CREATE TABLE IF NOT EXISTS interpretations_and_focus_area
+(
+    "Band" TEXT,
+    "Category" TEXT,
+    "Score Range" TEXT,
+    "Interpretations" TEXT,
+    "Focus Area" TEXT
+);
