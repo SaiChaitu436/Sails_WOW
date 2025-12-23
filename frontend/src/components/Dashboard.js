@@ -94,6 +94,7 @@ const Dashboard = () => {
   const [modalAssessmentIndex, setModalAssessmentIndex] = useState(null); // Assessment index for scrolling
   const [showAssessmentModal, setShowAssessmentModal] = useState(false); // Assessment modal visibility
   const [assessmentCategoryIndex, setAssessmentCategoryIndex] = useState(0); // Category index for assessment
+  const [filteredCategoryByAssessment, setFilteredCategoryByAssessment] = useState({}); // Track filtered category per assessment
 
   const getQuestions = (band, category) => {
     // Ensure band format is correct (add 'band' prefix if not present)
@@ -372,7 +373,13 @@ const Dashboard = () => {
   // Handle review answers button - scroll to assessment section and expand it
   const handleReviewAnswers = () => {
     setShowScoreRangesModal(false);
-    if (modalAssessmentIndex !== null) {
+    if (modalAssessmentIndex !== null && modalCategory) {
+      // Set filter to show only the selected category
+      setFilteredCategoryByAssessment(prev => ({
+        ...prev,
+        [modalAssessmentIndex]: modalCategory
+      }));
+      
       // Expand the Assessment Review section
       setExpandedHistory(prev => ({
         ...prev,
@@ -391,7 +398,7 @@ const Dashboard = () => {
             const categorySectionId = `category-${modalAssessmentIndex}-${modalCategory}`;
             const categoryElement = document.getElementById(categorySectionId);
             if (categoryElement) {
-              categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
               // Highlight the category section briefly
               categoryElement.style.transition = 'box-shadow 0.3s ease, background-color 0.3s ease';
               categoryElement.style.boxShadow = '0 0 20px rgba(74, 144, 226, 0.5)';
@@ -1275,7 +1282,7 @@ const Dashboard = () => {
                                           }}
                                           style={{
                                             padding: '2px 8px',
-                                            fontSize: '12px',
+                                            fontSize: '13px',
                                             color: '#4a90e2',
                                             textDecoration: 'none',
                                             marginLeft: '8px'
@@ -1288,7 +1295,6 @@ const Dashboard = () => {
                                         <div style={{
                                           fontSize: '13px',
                                           color: '#666',
-                                          marginBottom: '8px'
                                         }}>
                                          {actualPoints}/{maxPoints} Marks
                                         </div>
@@ -1372,31 +1378,71 @@ const Dashboard = () => {
                               maxHeight: '600px',
                               overflowY: 'auto'
                             }}>
-                              {assessment.sections.map((section, sectionIndex) => {
-                                // Find matching category score
-                                const categoryScore = assessment.category_scores?.find(
-                                  cs => {
-                                    const catName = typeof cs === 'object' ? cs.category : null;
-                                    return catName === section.category ||
-                                      section.category.includes(catName) ||
-                                      catName?.includes(section.category);
-                                  }
-                                );
-                                const sectionScore = categoryScore
-                                  ? (typeof categoryScore === 'object' ? categoryScore.score : categoryScore)
-                                  : null;
-
-                                return (
-                                  <div 
-                                    key={sectionIndex} 
-                                    id={`category-${index}-${section.category}`}
-                                    className="mb-4" 
+                              {/* Filter indicator and clear button */}
+                              {filteredCategoryByAssessment[index] && (
+                                <div className="mb-3 d-flex justify-content-between align-items-center" style={{
+                                  padding: '10px',
+                                  backgroundColor: '#e3f2fd',
+                                  borderRadius: '6px',
+                                  border: '1px solid #4a90e2'
+                                }}>
+                                  <span style={{ fontSize: '14px', color: '#333', fontWeight: 500 }}>
+                                    <strong>{filteredCategoryByAssessment[index]}</strong>
+                                  </span>
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    onClick={() => {
+                                      setFilteredCategoryByAssessment(prev => {
+                                        const newState = { ...prev };
+                                        delete newState[index];
+                                        return newState;
+                                      });
+                                    }}
                                     style={{
-                                      borderBottom: sectionIndex < assessment.sections.length - 1 ? '2px solid #e0e0e0' : 'none',
-                                      paddingBottom: sectionIndex < assessment.sections.length - 1 ? '15px' : '0',
-                                      transition: 'all 0.3s ease'
+                                      padding: '2px 8px',
+                                      fontSize: '12px',
+                                      color: '#4a90e2',
+                                      textDecoration: 'none',
+                                      fontWeight: 500
                                     }}
                                   >
+                                    Show All Categories
+                                  </Button>
+                                </div>
+                              )}
+                              {(() => {
+                                // Filter sections based on selected category
+                                const filteredSections = assessment.sections.filter(section => {
+                                  const filterCategory = filteredCategoryByAssessment[index];
+                                  return !filterCategory || section.category === filterCategory;
+                                });
+                                
+                                return filteredSections.map((section, sectionIndex) => {
+                                  // Find matching category score
+                                  const categoryScore = assessment.category_scores?.find(
+                                    cs => {
+                                      const catName = typeof cs === 'object' ? cs.category : null;
+                                      return catName === section.category ||
+                                        section.category.includes(catName) ||
+                                        catName?.includes(section.category);
+                                    }
+                                  );
+                                  const sectionScore = categoryScore
+                                    ? (typeof categoryScore === 'object' ? categoryScore.score : categoryScore)
+                                    : null;
+
+                                  return (
+                                    <div 
+                                      key={sectionIndex} 
+                                      id={`category-${index}-${section.category}`}
+                                      className="mb-4" 
+                                      style={{
+                                        borderBottom: sectionIndex < filteredSections.length - 1 ? '2px solid #e0e0e0' : 'none',
+                                        paddingBottom: sectionIndex < filteredSections.length - 1 ? '15px' : '0',
+                                        transition: 'all 0.3s ease'
+                                      }}
+                                    >
                                     <div className="d-flex justify-content-between align-items-center mb-3">
                                       <h6 style={{
                                         color: '#333',
@@ -1452,9 +1498,10 @@ const Dashboard = () => {
                                         </div>
                                       </div>
                                     ))}
-                                  </div>
-                                );
-                              })}
+                                    </div>
+                                  );
+                                });
+                              })()}
                             </div>
                           )}
                         </div>
