@@ -228,6 +228,40 @@ const Dashboard = () => {
             } else {
               setAssessmentStatus("In Progress");
             }
+            
+            // Update competency progress from assessment history
+            const progressMap = {};
+            if (currentBandHistory.sections && currentBandHistory.sections.length > 0) {
+              currentBandHistory.sections.forEach((section) => {
+                const categoryName = section.category;
+                const categoryIndex = COMPETENCIES.findIndex(c => c.id === categoryName);
+                if (categoryIndex !== -1) {
+                  // Count answered questions in this section
+                  const answeredCount = section.questions ? section.questions.length : 0;
+                  progressMap[categoryName] = answeredCount;
+                  
+                  // Mark as completed in localStorage if all questions are answered
+                  if (answeredCount >= COMPETENCIES[categoryIndex].questions) {
+                    const completedCategories = localStorage.getItem('completedCategories') || '{}';
+                    const completedMap = JSON.parse(completedCategories);
+                    completedMap[`category-${categoryIndex}`] = {
+                      completed: true,
+                      apiSynced: true,
+                      syncedAt: new Date().toISOString(),
+                      questionsCount: answeredCount,
+                      employeeId: employeeId,
+                      band: currentBand
+                    };
+                    localStorage.setItem('completedCategories', JSON.stringify(completedMap));
+                  }
+                }
+              });
+            }
+            
+            // Update competency progress state
+            if (Object.keys(progressMap).length > 0) {
+              setCompetencyProgress(prev => ({ ...prev, ...progressMap }));
+            }
           }
         }
       })

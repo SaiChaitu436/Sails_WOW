@@ -558,39 +558,77 @@ def get_category_info(category: str, employee_id: str, db_conn=Depends(get_db_co
             band_name = band if band.startswith('band') else f'band{band}'
             table_name = f'"{band_name}"'
 
-            # The category parameter is the competency name (e.g., "Communication", "Adaptability & Learning Agility")
-            # Query by Competency field in the band table
-            # Get all questions for this competency from the band table
-            cur.execute(f'SELECT "Question" FROM {table_name} WHERE "Competency" = %s;', (category,))
-            all_questions = [row["Question"] for row in cur.fetchall()]
-
-            # Get user's answers for this competency
-            # The category field in assessment_answers stores the competency name
+            # First, check if assessment is completed (exists in assessment_results)
             cur.execute("""
-                SELECT question, answer_value
-                FROM assessment_answers
-                WHERE category = %s
-                  AND employee_id = %s;
-            """, (category, employee_id))
-
-            answers_dict = {row["question"]: row["answer_value"] for row in cur.fetchall()}
-
-            # Combine questions with answers
-            questions_with_answers = []
-            for question in all_questions:
-                questions_with_answers.append({
-                    "question": question,
-                    "answer_value": answers_dict.get(question, None),
-                    "is_answered": question in answers_dict
-                })
+                SELECT questions_answers
+                FROM assessment_results
+                WHERE employee_number=%s AND agreed_band=%s
+                ORDER BY completed_at DESC LIMIT 1;
+            """, (employee_id, band))
+            
+            result = cur.fetchone()
+            questions_answers_list = []
+            
+            if result and result.get("questions_answers"):
+                # Assessment is completed - get from assessment_results
+                questions_answers = result["questions_answers"]
+                
+                # Parse JSON if it's a string
+                if isinstance(questions_answers, str):
+                    try:
+                        questions_answers = json.loads(questions_answers)
+                    except:
+                        questions_answers = []
+                
+                # Find the section for this category
+                for section in questions_answers:
+                    if section.get("category") == category:
+                        # Build question-answer pairs
+                        for qa in section.get("questions", []):
+                            questions_answers_list.append({
+                                "question": qa.get("question", ""),
+                                "answer": qa.get("answer_value", "")
+                            })
+                        break
+            else:
+                # Assessment is in progress - get from assessment_answers
+                cur.execute("""
+                    SELECT question, answer_value
+                    FROM assessment_answers
+                    WHERE category = %s
+                      AND employee_id = %s
+                    ORDER BY question;
+                """, (category, employee_id))
+                
+                answers_data = cur.fetchall()
+                
+                # Get all questions for this category from the band table
+                cur.execute(f"""
+                    SELECT "Question"
+                    FROM {table_name}
+                    WHERE "Sub_Section" = %s OR "Competency" = %s
+                    ORDER BY "Question";
+                """, (category, category))
+                
+                all_questions = [row["Question"].strip().strip('"') for row in cur.fetchall()]
+                
+                # Create a map of question -> answer from assessment_answers
+                answers_map = {row["question"]: row["answer_value"] for row in answers_data}
+                
+                # Build question-answer pairs
+                for question in all_questions:
+                    questions_answers_list.append({
+                        "question": question,
+                        "answer": answers_map.get(question, "")
+                    })
 
         return {
             "employee_id": employee_id,
             "category": category,
             "band": band,
-            "total_questions": len(questions_with_answers),
-            "total_answers": len(answers_dict),
-            "questions": questions_with_answers
+            "total_questions": len(questions_answers_list),
+            "total_answers": len([qa for qa in questions_answers_list if qa.get("answer")]),
+            "questions_answers": questions_answers_list
         }
 
     except psycopg2.Error as e:

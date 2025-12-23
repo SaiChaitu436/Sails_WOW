@@ -24,6 +24,20 @@
   font-family: 'Poppins', sans-serif;
 }
 
+.question-number-highlight {
+  display: inline-block;
+  background-color: #4a90e2;
+  color: white;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin: 0 4px;
+  box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+  font-size: 16px;
+  min-width: 32px;
+  text-align: center;
+}
+
 .close-icon {
   font-size: 28px;
   color: var(--text-medium);
@@ -55,6 +69,16 @@
 .assessment-question-section {
   padding: 10px 0;
   border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.assessment-question-section.question-highlighted {
+  background-color: #e3f2fd;
+  border: 2px solid #4a90e2;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
 }
 
 .assessment-question-text {
@@ -64,6 +88,11 @@
   margin-bottom: 0;
   text-align: center;
   font-family: 'Poppins', sans-serif;
+}
+
+.assessment-question-section.question-highlighted .assessment-question-text {
+  color: #1976d2;
+  font-weight: 600;
 }
 
 .likert-scale-options {
