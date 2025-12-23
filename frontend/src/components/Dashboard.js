@@ -982,54 +982,6 @@ const Dashboard = () => {
           </Card.Body>
         </Card>
 
-        {/* Band Assessment Section */}
-        {/* <Card className="card-base mb-4">
-          <Card.Body>
-            <h5 className="history-title mb-4">Band Assessment</h5>
-            
-            <div className="d-flex align-items-center justify-content-between p-4 border rounded" style={{ 
-              backgroundColor: "#f9f9f9",
-              transition: "background-color 0.2s"
-            }}>
-              <div className="flex-grow-1">
-                <h6 className="mb-1" style={{ fontWeight: 500, color: "#333" }}>
-                  Band {currentBand || "2A"} Assessment
-                </h6>
-                <p className="mb-0 text-muted" style={{ fontSize: "14px" }}>
-                  Complete all 5 categories with 25 questions each
-                </p>
-              </div>
-              <Button
-                variant="primary"
-                onClick={() => {
-                  if (!canTakeAssessment() && assessmentStatus === "completed") {
-                    setToastMessage(`Assessment available in ${getDaysUntilNextAssessment()} days`);
-                    setShowToast(true);
-                    setTimeout(() => {
-                      setShowToast(false);
-                    }, 3000);
-                  } else {
-                    // Navigate to first competency if unlocked
-                    const firstCompetency = COMPETENCIES[0];
-                    if (isUnlocked(firstCompetency)) {
-                      navigate(`/assessment?category=0`, { state: questionsData });
-                    }
-                  }
-                }}
-                disabled={!canTakeAssessment() && assessmentStatus === "completed"}
-                style={{ 
-                  minWidth: "180px",
-                  whiteSpace: "nowrap"
-                }}
-              >
-                {!canTakeAssessment() && assessmentStatus === "completed" 
-                  ? `Available in ${getDaysUntilNextAssessment()} days`
-                  : "Start Assessment"}
-              </Button>
-            </div>
-          </Card.Body>
-        </Card> */}
-
         {/* Assessment History Card */}
         <Card className="card-base history-card">
           <Card.Body>
@@ -1263,7 +1215,7 @@ const Dashboard = () => {
                                     e.currentTarget.style.transform = 'translateY(0)';
                                   }}
                                   >
-                                    <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <div className="d-flex justify-content-between align-items-start">
                                       <div style={{ flex: 1 }}>
                                         <div className="d-flex align-items-center gap-2 justify-content-between mb-2">
                                           <span style={{
