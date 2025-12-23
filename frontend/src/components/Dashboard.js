@@ -1159,6 +1159,7 @@ const Dashboard = () => {
                         </div>
                       </div>
 
+                      <div className="d-flex gap-3">
                       {/* Section-wise Scores - Below Overall Score */}
                       {assessment.status === "Completed" && assessment.category_scores && assessment.category_scores.length > 0 && (
                         <div className="mt-3" style={{
@@ -1458,6 +1459,7 @@ const Dashboard = () => {
                           )}
                         </div>
                       )}
+                      </div>
                     </div>
                   );
                 })}
